@@ -14,7 +14,243 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      appointments: {
+        Row: {
+          appointment_date: string
+          booking_code: string
+          created_at: string
+          customer_id: string | null
+          id: string
+          notes: string | null
+          service_ids: string[]
+          staff_id: string | null
+          start_time: string
+          status: string
+          total_amount: number
+        }
+        Insert: {
+          appointment_date: string
+          booking_code: string
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          notes?: string | null
+          service_ids?: string[]
+          staff_id?: string | null
+          start_time: string
+          status?: string
+          total_amount?: number
+        }
+        Update: {
+          appointment_date?: string
+          booking_code?: string
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          notes?: string | null
+          service_ids?: string[]
+          staff_id?: string | null
+          start_time?: string
+          status?: string
+          total_amount?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customers: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          notes: string | null
+          phone: string
+          total_spent: number
+          total_visits: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          notes?: string | null
+          phone: string
+          total_spent?: number
+          total_visits?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string
+          total_spent?: number
+          total_visits?: number
+        }
+        Relationships: []
+      }
+      expenses: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          expense_date: string
+          id: string
+          title: string
+        }
+        Insert: {
+          amount?: number
+          category?: string
+          created_at?: string
+          expense_date?: string
+          id?: string
+          title: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          expense_date?: string
+          id?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      invoices: {
+        Row: {
+          created_at: string
+          customer_id: string | null
+          discount_pct: number
+          due_amount: number
+          id: string
+          invoice_no: string
+          items: Json
+          paid_amount: number
+          payment_method: string
+          staff_id: string | null
+          subtotal: number
+          total_amount: number
+        }
+        Insert: {
+          created_at?: string
+          customer_id?: string | null
+          discount_pct?: number
+          due_amount?: number
+          id?: string
+          invoice_no: string
+          items?: Json
+          paid_amount?: number
+          payment_method?: string
+          staff_id?: string | null
+          subtotal?: number
+          total_amount?: number
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string | null
+          discount_pct?: number
+          due_amount?: number
+          id?: string
+          invoice_no?: string
+          items?: Json
+          paid_amount?: number
+          payment_method?: string
+          staff_id?: string | null
+          subtotal?: number
+          total_amount?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      services: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          duration_minutes: number
+          id: string
+          is_active: boolean
+          name: string
+          price: number
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number
+          id?: string
+          is_active?: boolean
+          name: string
+          price?: number
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number
+          id?: string
+          is_active?: boolean
+          name?: string
+          price?: number
+        }
+        Relationships: []
+      }
+      staff: {
+        Row: {
+          commission_rate: number
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          phone: string | null
+          role: string
+        }
+        Insert: {
+          commission_rate?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          phone?: string | null
+          role?: string
+        }
+        Update: {
+          commission_rate?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          phone?: string | null
+          role?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
