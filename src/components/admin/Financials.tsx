@@ -126,7 +126,7 @@ export default function Financials() {
         <h3 className="font-display text-xl font-semibold">Daily revenue</h3>
         <div className="mt-5 flex h-44 items-end gap-1">
           {daily.map((d) => (
-            <div key={d.date} className="group flex flex-1 flex-col items-center gap-1">
+            <div key={d.date} className="group flex h-full flex-1 flex-col justify-end items-center gap-1">
               <span className="text-[9px] text-primary opacity-0 transition-opacity group-hover:opacity-100">
                 {Math.round(d.total / 1000)}k
               </span>
