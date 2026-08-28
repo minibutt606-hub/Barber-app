@@ -16,7 +16,7 @@ export default function CatalogManager() {
     price: "",
     duration: "30",
   });
-  const [staffForm, setStaffForm] = useState({ name: "", role: "", specialties: "" });
+  const [staffForm, setStaffForm] = useState({ name: "", role: "", phone: "" });
 
   const { data } = useQuery({
     queryKey: ["admin-catalog"],
@@ -75,16 +75,13 @@ export default function CatalogManager() {
       const { error } = await supabase.from("staff").insert({
         name: staffForm.name.trim(),
         role: staffForm.role.trim() || "Stylist",
-        specialties: staffForm.specialties
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean),
+        phone: staffForm.phone.trim() || null,
         is_active: true,
       });
       if (error) throw error;
     },
     onSuccess: () => {
-      setStaffForm({ name: "", role: "", specialties: "" });
+      setStaffForm({ name: "", role: "", phone: "" });
       invalidate();
       toast.success("Stylist added");
     },
@@ -197,9 +194,9 @@ export default function CatalogManager() {
             className="rounded-2xl bg-white/5 px-4 py-2.5 text-sm outline-none"
           />
           <input
-            value={staffForm.specialties}
-            onChange={(e) => setStaffForm({ ...staffForm, specialties: e.target.value })}
-            placeholder="Specialties, comma separated"
+            value={staffForm.phone}
+            onChange={(e) => setStaffForm({ ...staffForm, phone: e.target.value })}
+            placeholder="Phone number"
             className="rounded-2xl bg-white/5 px-4 py-2.5 text-sm outline-none"
           />
         </div>
@@ -223,7 +220,7 @@ export default function CatalogManager() {
                 <p className="truncate text-sm">{s.name}</p>
                 <p className="truncate text-xs text-muted-foreground">
                   {s.role}
-                  {s.specialties?.length ? ` · ${s.specialties.join(", ")}` : ""}
+                  {s.phone ? ` · ${s.phone}` : ""}
                 </p>
               </div>
               <button
