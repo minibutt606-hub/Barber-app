@@ -395,7 +395,7 @@ export default function BookingPortal() {
                 maxLength={20}
                 inputMode="tel"
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder="+92 300 1234567"
+                placeholder="03XXXXXXXXX"
                 className="mt-1 w-full rounded-2xl bg-white/5 px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary/60"
               />
             </div>
