@@ -149,21 +149,18 @@ export default function BookingPortal() {
 
   const summaryMessage = () =>
     [
-      `*New Booking — ${SALON.name}*`,
-      `Ref: ${confirmation?.bookingCode}`,
-      `Name: ${name}`,
-      `Phone: ${phone}`,
-      `Stylist: ${stylistName}`,
-      `Date: ${formatDate(date)} at ${formatTime(time ?? "")}`,
+      "Assalam-o-Alaikum Paragon Barber! I have booked an appointment.",
       "",
-      "*Services*",
-      ...chosen.map((s) => `• ${s.name} — ${formatMoney(s.price)}`),
+      `*Booking Ref:* ${confirmation?.bookingCode}`,
+      `*Name:* ${name}`,
+      `*Phone:* ${phone}`,
+      `*Services:* ${chosen.map((s) => s.name).join(", ")}`,
+      `*Date:* ${formatDate(date)}`,
+      `*Time:* ${formatTime(time ?? "")}`,
+      `*Total:* ${formatMoney(total)}`,
       "",
-      `Total: ${formatMoney(total)} (${formatDuration(duration)})`,
-      notes ? `Notes: ${notes}` : "",
-    ]
-      .filter(Boolean)
-      .join("\n");
+      "Please confirm my appointment slot.",
+    ].join("\n");
 
   return (
     <div className="min-h-screen pb-40">
