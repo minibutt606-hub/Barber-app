@@ -66,13 +66,6 @@ export type Database = {
             foreignKeyName: "appointments_staff_id_fkey"
             columns: ["staff_id"]
             isOneToOne: false
-            referencedRelation: "public_staff"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "appointments_staff_id_fkey"
-            columns: ["staff_id"]
-            isOneToOne: false
             referencedRelation: "staff"
             referencedColumns: ["id"]
           },
@@ -190,13 +183,6 @@ export type Database = {
             foreignKeyName: "invoices_staff_id_fkey"
             columns: ["staff_id"]
             isOneToOne: false
-            referencedRelation: "public_staff"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "invoices_staff_id_fkey"
-            columns: ["staff_id"]
-            isOneToOne: false
             referencedRelation: "staff"
             referencedColumns: ["id"]
           },
@@ -288,34 +274,10 @@ export type Database = {
       }
     }
     Views: {
-      public_staff: {
-        Row: {
-          id: string | null
-          name: string | null
-          role: string | null
-        }
-        Insert: {
-          id?: string | null
-          name?: string | null
-          role?: string | null
-        }
-        Update: {
-          id?: string | null
-          name?: string | null
-          role?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
-      has_role: {
-        Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
-        Returns: boolean
-      }
-      is_salon_staff: { Args: { _user_id: string }; Returns: boolean }
+      [_ in never]: never
     }
     Enums: {
       app_role: "admin" | "staff"
