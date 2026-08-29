@@ -459,7 +459,7 @@ export default function BookingPortal() {
             <a
               href={whatsappLink(SALON.whatsapp, summaryMessage())}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-success px-6 py-3.5 text-sm font-semibold text-success-foreground transition-transform active:scale-[0.98]"
             >
               <MessageCircle className="size-4" /> Confirm on WhatsApp
