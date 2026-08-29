@@ -2,9 +2,9 @@ export const SALON = {
   name: "Paragon Barber",
   tagline: "Precision grooming, royal treatment",
   address: "Shah Chowk near Chaman",
-  phone: "+92 300 000 0000",
+  phone: "+92 327 1300046",
   /** WhatsApp number in international format, digits only. */
-  whatsapp: "923000000000",
+  whatsapp: "923271300046",
   openFrom: "11:00 AM",
   openTo: "3:00 AM",
 } as const;

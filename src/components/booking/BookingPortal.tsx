@@ -149,21 +149,18 @@ export default function BookingPortal() {
 
   const summaryMessage = () =>
     [
-      `*New Booking — ${SALON.name}*`,
-      `Ref: ${confirmation?.bookingCode}`,
-      `Name: ${name}`,
-      `Phone: ${phone}`,
-      `Stylist: ${stylistName}`,
-      `Date: ${formatDate(date)} at ${formatTime(time ?? "")}`,
+      "Assalam-o-Alaikum Paragon Barber! I have booked an appointment.",
       "",
-      "*Services*",
-      ...chosen.map((s) => `• ${s.name} — ${formatMoney(s.price)}`),
+      `*Booking Ref:* ${confirmation?.bookingCode}`,
+      `*Name:* ${name}`,
+      `*Phone:* ${phone}`,
+      `*Services:* ${chosen.map((s) => s.name).join(", ")}`,
+      `*Date:* ${formatDate(date)}`,
+      `*Time:* ${formatTime(time ?? "")}`,
+      `*Total:* ${formatMoney(total)}`,
       "",
-      `Total: ${formatMoney(total)} (${formatDuration(duration)})`,
-      notes ? `Notes: ${notes}` : "",
-    ]
-      .filter(Boolean)
-      .join("\n");
+      "Please confirm my appointment slot.",
+    ].join("\n");
 
   return (
     <div className="min-h-screen pb-40">
@@ -462,7 +459,7 @@ export default function BookingPortal() {
             <a
               href={whatsappLink(SALON.whatsapp, summaryMessage())}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-success px-6 py-3.5 text-sm font-semibold text-success-foreground transition-transform active:scale-[0.98]"
             >
               <MessageCircle className="size-4" /> Confirm on WhatsApp
