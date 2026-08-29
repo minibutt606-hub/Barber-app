@@ -21,7 +21,6 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -36,23 +35,12 @@ function AuthPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
-          email: email.trim(),
-          password,
-          options: { emailRedirectTo: `${window.location.origin}/admin` },
-        });
-        if (error) throw error;
-        toast.success("Account created. You can sign in now.");
-        setMode("signin");
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email: email.trim(),
-          password,
-        });
-        if (error) throw error;
-        navigate({ to: "/admin", replace: true });
-      }
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
+      if (error) throw error;
+      navigate({ to: "/admin", replace: true });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Authentication failed");
     } finally {
@@ -75,13 +63,9 @@ function AuthPage() {
           </div>
         </div>
 
-        <h1 className="mt-7 font-display text-3xl font-semibold">
-          {mode === "signin" ? "Welcome back" : "Create staff access"}
-        </h1>
+        <h1 className="mt-7 font-display text-3xl font-semibold">Welcome back</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {mode === "signin"
-            ? "Sign in to manage bookings, billing and analytics."
-            : "Register the salon's admin account to get started."}
+          Sign in to manage bookings, billing and analytics.
         </p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
@@ -120,18 +104,13 @@ function AuthPage() {
             className="flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 text-sm font-semibold text-primary-foreground transition-transform active:scale-[0.98] disabled:opacity-60"
           >
             {loading && <Loader2 className="size-4 animate-spin" />}
-            {mode === "signin" ? "Sign in" : "Create account"}
+            Sign in
           </button>
         </form>
 
-        <button
-          onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
-          className="mt-4 w-full text-center text-xs text-muted-foreground transition-colors hover:text-primary"
-        >
-          {mode === "signin"
-            ? "First time here? Create the salon account"
-            : "Already registered? Sign in"}
-        </button>
+        <p className="mt-4 text-center text-xs text-muted-foreground">
+          Staff accounts are provisioned by the salon owner.
+        </p>
       </div>
     </div>
   );
