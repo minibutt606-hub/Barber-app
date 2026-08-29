@@ -191,9 +191,14 @@ export default function BookingPortal() {
 
       <main className="mx-auto max-w-3xl px-5">
         <section className="glass mt-6 rounded-3xl p-6 sm:p-8">
-          <p className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-[11px] font-medium tracking-wider text-primary uppercase">
-            <Sparkles className="size-3" /> Open {SALON.openFrom} – {SALON.openTo}
-          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-[11px] font-medium tracking-wider text-primary uppercase">
+              <Sparkles className="size-3" /> Open {SALON.openFrom} – {SALON.openTo}
+            </span>
+            <span className="glass inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-medium tracking-wider text-muted-foreground uppercase">
+              <MapPin className="size-3 text-primary" /> {SALON.address}
+            </span>
+          </div>
           <h1 className="mt-4 font-display text-4xl leading-tight font-semibold sm:text-5xl">
             Book your <span className="gold-text">grooming ritual</span>
           </h1>
@@ -201,10 +206,8 @@ export default function BookingPortal() {
             Choose your services, pick your stylist and lock a slot in under a minute. Confirmation
             arrives instantly on WhatsApp.
           </p>
-          <p className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
-            <MapPin className="size-3.5 text-primary" /> {SALON.address}
-          </p>
         </section>
+
 
         <div className="mt-6 flex items-center justify-between">
           <StepDots step={step} />
@@ -392,7 +395,7 @@ export default function BookingPortal() {
                 maxLength={20}
                 inputMode="tel"
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder="+92 300 1234567"
+                placeholder="03XXXXXXXXX"
                 className="mt-1 w-full rounded-2xl bg-white/5 px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary/60"
               />
             </div>
