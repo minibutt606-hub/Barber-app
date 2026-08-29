@@ -1,12 +1,12 @@
 export const SALON = {
   name: "Paragon Barber",
   tagline: "Precision grooming, royal treatment",
-  address: "Main Boulevard, Gulberg III, Lahore",
+  address: "Shah Chowk near Chaman",
   phone: "+92 300 000 0000",
   /** WhatsApp number in international format, digits only. */
   whatsapp: "923000000000",
   openFrom: "11:00 AM",
-  openTo: "10:00 PM",
+  openTo: "3:00 AM",
 } as const;
 
 export const CURRENCY = "Rs";
@@ -40,11 +40,12 @@ export const APPOINTMENT_STATUSES = [
 ] as const;
 export type AppointmentStatus = (typeof APPOINTMENT_STATUSES)[number];
 
-/** 30-minute slots between 11:00 and 22:00 (last start 21:30). */
+/** 30-minute slots between 11:00 AM and 3:00 AM (last start 2:30 AM). */
 export function buildTimeSlots(): string[] {
   const slots: string[] = [];
-  for (let minutes = 11 * 60; minutes <= 21 * 60 + 30; minutes += 30) {
-    const h = Math.floor(minutes / 60);
+  // 11:00 -> 23:30 same day, then 00:00 -> 02:30 next day.
+  for (let minutes = 11 * 60; minutes <= 26 * 60 + 30; minutes += 30) {
+    const h = Math.floor(minutes / 60) % 24;
     const m = minutes % 60;
     slots.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
   }
