@@ -1,12 +1,12 @@
 export const SALON = {
   name: "Paragon Barber",
   tagline: "Precision grooming, royal treatment",
-  address: "Main Boulevard, Gulberg III, Lahore",
+  address: "Shah Chowk near Chaman",
   phone: "+92 300 000 0000",
   /** WhatsApp number in international format, digits only. */
   whatsapp: "923000000000",
   openFrom: "11:00 AM",
-  openTo: "10:00 PM",
+  openTo: "3:00 AM",
 } as const;
 
 export const CURRENCY = "Rs";
