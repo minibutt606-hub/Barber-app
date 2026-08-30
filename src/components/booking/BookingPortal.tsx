@@ -97,13 +97,9 @@ export default function BookingPortal() {
   const staffQuery = useQuery({
     queryKey: ["public-staff"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("staff")
-        .select("id, name, role")
-        .eq("is_active", true)
-        .order("name");
+      const { data, error } = await supabase.rpc("get_public_staff");
       if (error) throw error;
-      return data as Staff[];
+      return (data ?? []) as Staff[];
     },
   });
 
