@@ -69,13 +69,6 @@ export type Database = {
             referencedRelation: "staff"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "appointments_staff_id_fkey"
-            columns: ["staff_id"]
-            isOneToOne: false
-            referencedRelation: "staff_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       customers: {
@@ -193,13 +186,6 @@ export type Database = {
             referencedRelation: "staff"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "invoices_staff_id_fkey"
-            columns: ["staff_id"]
-            isOneToOne: false
-            referencedRelation: "staff_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       services: {
@@ -288,30 +274,17 @@ export type Database = {
       }
     }
     Views: {
-      staff_public: {
-        Row: {
-          id: string | null
-          is_active: boolean | null
-          name: string | null
-          role: string | null
-        }
-        Insert: {
-          id?: string | null
-          is_active?: boolean | null
-          name?: string | null
-          role?: string | null
-        }
-        Update: {
-          id?: string | null
-          is_active?: boolean | null
-          name?: string | null
-          role?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_public_staff: {
+        Args: never
+        Returns: {
+          id: string
+          name: string
+          role: string
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "staff"
