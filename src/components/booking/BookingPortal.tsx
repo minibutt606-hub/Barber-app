@@ -12,7 +12,6 @@ import {
   Loader2,
   MapPin,
   MessageCircle,
-  Scissors,
   Sparkles,
   User,
   UserRound,
