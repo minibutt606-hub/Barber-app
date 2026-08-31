@@ -214,7 +214,7 @@ export default function PosTerminal({
       return;
     }
     const digits = customerPhone.replace(/\D/g, "");
-    let target = SALON.whatsapp;
+    let target: string = SALON.whatsapp;
     if (digits.length >= 10) {
       target = digits.startsWith("0")
         ? `92${digits.slice(1)}`
