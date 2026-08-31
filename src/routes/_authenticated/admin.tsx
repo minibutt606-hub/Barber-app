@@ -62,7 +62,7 @@ function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-28 lg:pb-0">
+    <div className="min-h-screen bg-background pb-24 lg:pb-0">
       <div className="pointer-events-none fixed inset-x-0 top-0 h-96 bg-[radial-gradient(60%_60%_at_50%_0%,color-mix(in_oklch,var(--color-primary)_16%,transparent),transparent)] print:hidden" />
 
       <div className="relative mx-auto flex max-w-[1500px] gap-6 px-4 py-6 lg:px-8">
@@ -131,19 +131,19 @@ function AdminDashboard() {
         </main>
       </div>
 
-      {/* Mobile tab bar */}
-      <nav className="glass-strong fixed inset-x-3 bottom-3 z-40 flex items-center justify-around rounded-3xl p-2 lg:hidden print:hidden">
+      {/* Mobile tab bar — fixed height, never grows */}
+      <nav className="glass-strong fixed bottom-0 left-0 right-0 z-50 flex h-16 items-center justify-around px-2 py-0 lg:hidden print:hidden">
         {TABS.map(({ key, label, icon: Icon }) => (
           <button
             key={key}
             onClick={() => setTab(key)}
             className={cn(
-              "flex flex-1 flex-col items-center gap-1 rounded-2xl py-2 text-[10px] transition-all",
+              "flex h-full flex-1 flex-col items-center justify-center gap-1 rounded-2xl text-[10px] leading-none transition-all",
               tab === key ? "bg-primary/15 text-primary" : "text-muted-foreground",
             )}
           >
-            <Icon className="size-4" />
-            {label}
+            <Icon className="size-4 shrink-0" />
+            <span className="whitespace-nowrap">{label}</span>
           </button>
         ))}
       </nav>
