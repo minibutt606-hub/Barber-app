@@ -99,14 +99,14 @@ export default function Financials() {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="w-full max-w-full space-y-6 overflow-x-hidden">
       <div className="flex flex-wrap items-center gap-2">
         {([7, 30, 90] as Range[]).map((r) => (
           <button
             key={r}
             onClick={() => setRange(r)}
             className={cn(
-              "rounded-full px-4 py-2 text-xs font-medium transition-all",
+              "rounded-full px-3 py-2 text-[11px] font-medium whitespace-nowrap transition-all sm:px-4 sm:text-xs",
               range === r ? "bg-primary text-primary-foreground" : "glass text-muted-foreground",
             )}
           >
@@ -115,40 +115,53 @@ export default function Financials() {
         ))}
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         <Stat label="Revenue" value={formatMoney(revenue)} icon={<ArrowUpRight className="size-4" />} tone="success" />
         <Stat label="Expenses" value={formatMoney(spend)} icon={<ArrowDownRight className="size-4" />} tone="danger" />
         <Stat label="Net profit" value={formatMoney(profit)} icon={<Wallet className="size-4" />} tone="primary" />
         <Stat label="Avg. ticket" value={formatMoney(avgTicket)} icon={<Crown className="size-4" />} tone="primary" />
       </div>
 
-      <section className="glass rounded-3xl p-5">
-        <h3 className="font-display text-xl font-semibold">Daily revenue</h3>
-        <div className="mt-5 flex h-44 items-end gap-1">
-          {daily.map((d) => (
-            <div key={d.date} className="group flex h-full flex-1 flex-col justify-end items-center gap-1">
-              <span className="text-[9px] text-primary opacity-0 transition-opacity group-hover:opacity-100">
-                {Math.round(d.total / 1000)}k
-              </span>
-              <div
-                className="w-full rounded-t-md bg-gradient-to-t from-primary/25 to-primary transition-all"
-                style={{ height: `${Math.max((d.total / maxDaily) * 100, 2)}%` }}
-                title={`${d.date}: ${formatMoney(d.total)}`}
-              />
+      <section className="glass rounded-3xl p-4 sm:p-5">
+        <h3 className="font-display text-lg font-semibold sm:text-xl">Daily revenue</h3>
+        {rangeInvoices.length === 0 ? (
+          <p className="mt-4 rounded-2xl bg-white/[0.03] p-5 text-xs text-muted-foreground">
+            No sales recorded yet.
+          </p>
+        ) : (
+          <div className="no-scrollbar -mx-1 mt-5 overflow-x-auto px-1">
+            <div className="flex h-40 min-w-full items-end gap-1 sm:h-44" style={{ minWidth: daily.length * 8 }}>
+              {daily.map((d) => (
+                <div key={d.date} className="group flex h-full min-w-[6px] flex-1 flex-col items-center justify-end gap-1">
+                  <span className="text-[9px] text-primary opacity-0 transition-opacity group-hover:opacity-100">
+                    {Math.round(d.total / 1000)}k
+                  </span>
+                  <div
+                    className="w-full rounded-t-md bg-gradient-to-t from-primary/25 to-primary transition-all"
+                    style={{ height: `${Math.max((d.total / maxDaily) * 100, 2)}%` }}
+                    title={`${d.date}: ${formatMoney(d.total)}`}
+                  />
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
+        )}
       </section>
 
       <div className="grid gap-5 lg:grid-cols-2">
-        <section className="glass rounded-3xl p-5">
-          <h3 className="font-display text-xl font-semibold">Stylist performance</h3>
+        <section className="glass rounded-3xl p-4 sm:p-5">
+          <h3 className="font-display text-lg font-semibold sm:text-xl">Stylist performance</h3>
           <div className="mt-4 space-y-3">
+            {byStaff.length === 0 && (
+              <p className="rounded-2xl bg-white/[0.03] p-5 text-xs text-muted-foreground">
+                No staff members added.
+              </p>
+            )}
             {byStaff.map((s) => (
               <div key={s.name} className="space-y-1.5">
-                <div className="flex justify-between text-sm">
-                  <span>{s.name}</span>
-                  <span className="text-primary">{formatMoney(s.total)}</span>
+                <div className="flex items-center justify-between gap-3 text-sm">
+                  <span className="min-w-0 truncate">{s.name}</span>
+                  <span className="shrink-0 text-primary">{formatMoney(s.total)}</span>
                 </div>
                 <div className="h-2 overflow-hidden rounded-full bg-white/5">
                   <div
@@ -161,38 +174,43 @@ export default function Financials() {
           </div>
         </section>
 
-        <section className="glass rounded-3xl p-5">
-          <h3 className="font-display text-xl font-semibold">Top guests</h3>
+        <section className="glass rounded-3xl p-4 sm:p-5">
+          <h3 className="font-display text-lg font-semibold sm:text-xl">Top guests</h3>
           <div className="mt-4 space-y-3">
+            {customers.length === 0 && (
+              <p className="rounded-2xl bg-white/[0.03] p-5 text-xs text-muted-foreground">
+                No guests recorded yet.
+              </p>
+            )}
             {customers.slice(0, 6).map((c, idx) => (
               <div key={c.id} className="flex items-center gap-3">
-                <span className="flex size-8 items-center justify-center rounded-full bg-primary/12 text-xs text-primary">
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/12 text-xs text-primary">
                   {idx + 1}
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm">{c.name}</p>
                   <p className="text-xs text-muted-foreground">{c.total_visits} visits</p>
                 </div>
-                <span className="text-sm text-primary">{formatMoney(c.total_spent)}</span>
+                <span className="shrink-0 text-sm text-primary">{formatMoney(c.total_spent)}</span>
               </div>
             ))}
           </div>
         </section>
       </div>
 
-      <section className="glass rounded-3xl p-5">
-        <h3 className="font-display text-xl font-semibold">Expenses</h3>
+      <section className="glass rounded-3xl p-4 sm:p-5">
+        <h3 className="font-display text-lg font-semibold sm:text-xl">Expenses</h3>
         <div className="mt-4 grid gap-2 sm:grid-cols-[1.4fr_1fr_1fr_auto]">
           <input
             value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
             placeholder="Expense title"
-            className="rounded-2xl bg-white/5 px-4 py-2.5 text-sm outline-none"
+            className="w-full min-w-0 rounded-2xl bg-white/5 px-4 py-2.5 text-sm outline-none"
           />
           <select
             value={form.category}
             onChange={(e) => setForm({ ...form, category: e.target.value })}
-            className="rounded-2xl bg-white/5 px-4 py-2.5 text-sm outline-none"
+            className="w-full min-w-0 rounded-2xl bg-white/5 px-4 py-2.5 text-sm outline-none"
           >
             {EXPENSE_CATEGORIES.map((c) => (
               <option key={c} value={c} className="bg-card">
@@ -205,7 +223,7 @@ export default function Financials() {
             value={form.amount}
             onChange={(e) => setForm({ ...form, amount: e.target.value })}
             placeholder="Amount"
-            className="rounded-2xl bg-white/5 px-4 py-2.5 text-sm outline-none"
+            className="w-full min-w-0 rounded-2xl bg-white/5 px-4 py-2.5 text-sm outline-none"
           />
           <button
             onClick={() => addExpense.mutate()}
@@ -215,18 +233,23 @@ export default function Financials() {
           </button>
         </div>
         <div className="mt-4 space-y-2">
+          {rangeExpenses.length === 0 && (
+            <p className="rounded-2xl bg-white/[0.03] p-5 text-xs text-muted-foreground">
+              No expenses recorded yet.
+            </p>
+          )}
           {rangeExpenses.slice(0, 10).map((e) => (
             <div
               key={e.id}
-              className="flex items-center justify-between rounded-2xl bg-white/[0.04] px-4 py-3 text-sm"
+              className="flex items-center justify-between gap-3 rounded-2xl bg-white/[0.04] px-4 py-3 text-sm"
             >
-              <div>
-                <p>{e.title}</p>
-                <p className="text-xs text-muted-foreground">
+              <div className="min-w-0">
+                <p className="truncate">{e.title}</p>
+                <p className="truncate text-xs text-muted-foreground">
                   {e.category} · {e.expense_date}
                 </p>
               </div>
-              <span className="text-destructive">-{formatMoney(e.amount)}</span>
+              <span className="shrink-0 text-destructive">-{formatMoney(e.amount)}</span>
             </div>
           ))}
         </div>
@@ -234,6 +257,7 @@ export default function Financials() {
     </div>
   );
 }
+
 
 function Stat({
   label,
@@ -247,12 +271,12 @@ function Stat({
   tone: "success" | "danger" | "primary";
 }) {
   return (
-    <div className="glass rounded-3xl p-5">
-      <div className="flex items-center justify-between">
-        <p className="text-xs tracking-wider text-muted-foreground uppercase">{label}</p>
+    <div className="glass min-w-0 rounded-3xl p-4 sm:p-5">
+      <div className="flex items-center justify-between gap-2">
+        <p className="min-w-0 truncate text-[10px] tracking-wider text-muted-foreground uppercase sm:text-xs">{label}</p>
         <span
           className={cn(
-            "flex size-8 items-center justify-center rounded-full",
+            "flex size-8 shrink-0 items-center justify-center rounded-full",
             tone === "success" && "bg-success/15 text-success",
             tone === "danger" && "bg-destructive/12 text-destructive",
             tone === "primary" && "bg-primary/15 text-primary",
@@ -261,7 +285,7 @@ function Stat({
           {icon}
         </span>
       </div>
-      <p className="mt-3 font-display text-2xl font-semibold">{value}</p>
+      <p className="mt-3 font-display text-xl font-semibold break-words sm:text-2xl">{value}</p>
     </div>
   );
 }

@@ -12,7 +12,6 @@ import {
   Loader2,
   MapPin,
   MessageCircle,
-  Scissors,
   Sparkles,
   User,
   UserRound,
@@ -259,7 +258,7 @@ export default function BookingPortal() {
                           active ? "bg-primary text-primary-foreground" : "bg-white/5 text-primary",
                         )}
                       >
-                        {active ? <Check className="size-4" /> : <Scissors className="size-4" />}
+                        {active ? <Check className="size-4" /> : <span className="size-2.5 rounded-full border border-current opacity-50" />}
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="font-medium">{s.name}</p>

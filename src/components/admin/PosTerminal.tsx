@@ -4,7 +4,7 @@ import { Loader2, Minus, MessageCircle, Plus, Printer, Search, Trash2, UserPlus 
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
-import { PAYMENT_METHODS, SALON, formatMoney, whatsappLink, type PaymentMethod } from "@/lib/salon";
+import { PAYMENT_METHODS, SALON, formatMoney, type PaymentMethod } from "@/lib/salon";
 import { cn } from "@/lib/utils";
 import type { Customer, PosDraft, PosLineItem, Service, Staff } from "./types";
 
@@ -182,24 +182,50 @@ export default function PosTerminal({
       toast.error(error instanceof Error ? error.message : "Could not settle the invoice"),
   });
 
+  const staffName = staff.find((s) => s.id === staffId)?.name ?? null;
+
   const receiptText = () =>
     [
-      `*${SALON.name}* — Receipt`,
-      lastInvoiceNo ? `Invoice: ${lastInvoiceNo}` : "",
-      customerName ? `Guest: ${customerName}` : "",
+      `*${SALON.name}* — Invoice`,
+      `*Invoice:* ${lastInvoiceNo ?? "DRAFT"}`,
+      `*Date:* ${new Date().toLocaleString("en-GB")}`,
+      customerName ? `*Guest:* ${customerName}` : "",
+      customerPhone ? `*Phone:* ${customerPhone}` : "",
+      staffName ? `*Stylist:* ${staffName}` : "",
       "",
-      ...items.map((i) => `${i.qty} × ${i.name} — ${formatMoney(i.price * i.qty)}`),
+      "*Services*",
+      ...items.map((i) => `• ${i.qty} × ${i.name} — ${formatMoney(i.price * i.qty)}`),
       "",
-      `Subtotal: ${formatMoney(subtotal)}`,
-      discountAmount ? `Discount: -${formatMoney(discountAmount)}` : "",
-      `Total: ${formatMoney(totalPayable)}`,
-      `Paid (${method}): ${formatMoney(paid)}`,
-      due ? `Balance due: ${formatMoney(due)}` : "",
+      `*Subtotal:* ${formatMoney(subtotal)}`,
+      discountAmount ? `*Discount:* -${formatMoney(discountAmount)}` : "",
+      `*Total:* ${formatMoney(totalPayable)}`,
+      `*Paid (${method}):* ${formatMoney(paid)}`,
+      due ? `*Balance due:* ${formatMoney(due)}` : "",
       "",
+      `${SALON.address}`,
       "Thank you for visiting!",
     ]
       .filter(Boolean)
       .join("\n");
+
+  function sendWhatsappReceipt() {
+    if (items.length === 0) {
+      toast.error("Add at least one service first");
+      return;
+    }
+    const digits = customerPhone.replace(/\D/g, "");
+    let target: string = SALON.whatsapp;
+    if (digits.length >= 10) {
+      target = digits.startsWith("0")
+        ? `92${digits.slice(1)}`
+        : digits.startsWith("92")
+          ? digits
+          : digits;
+    }
+    const url = `https://wa.me/${target}?text=${encodeURIComponent(receiptText())}`;
+    const win = window.open(url, "_blank", "noopener,noreferrer");
+    if (!win) window.location.href = url;
+  }
 
   return (
     <div className="grid gap-5 xl:grid-cols-[1.4fr_1fr]">
@@ -385,14 +411,14 @@ export default function PosTerminal({
             {settle.isPending ? <Loader2 className="size-4 animate-spin" /> : <Printer className="size-4" />}
             Print &amp; Settle
           </button>
-          <a
-            href={whatsappLink(customerPhone || SALON.whatsapp, receiptText())}
-            target="_blank"
-            rel="noreferrer"
+          <button
+            type="button"
+            onClick={sendWhatsappReceipt}
+            aria-label="Send receipt on WhatsApp"
             className="flex items-center justify-center gap-2 rounded-full bg-success/15 px-4 py-3 text-sm font-semibold text-success"
           >
             <MessageCircle className="size-4" />
-          </a>
+          </button>
           <button
             onClick={resetSale}
             className="flex items-center justify-center rounded-full bg-white/5 px-4 py-3 text-muted-foreground"
