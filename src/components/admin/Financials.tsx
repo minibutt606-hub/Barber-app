@@ -271,12 +271,12 @@ function Stat({
   tone: "success" | "danger" | "primary";
 }) {
   return (
-    <div className="glass rounded-3xl p-5">
-      <div className="flex items-center justify-between">
-        <p className="text-xs tracking-wider text-muted-foreground uppercase">{label}</p>
+    <div className="glass min-w-0 rounded-3xl p-4 sm:p-5">
+      <div className="flex items-center justify-between gap-2">
+        <p className="min-w-0 truncate text-[10px] tracking-wider text-muted-foreground uppercase sm:text-xs">{label}</p>
         <span
           className={cn(
-            "flex size-8 items-center justify-center rounded-full",
+            "flex size-8 shrink-0 items-center justify-center rounded-full",
             tone === "success" && "bg-success/15 text-success",
             tone === "danger" && "bg-destructive/12 text-destructive",
             tone === "primary" && "bg-primary/15 text-primary",
@@ -285,7 +285,7 @@ function Stat({
           {icon}
         </span>
       </div>
-      <p className="mt-3 font-display text-2xl font-semibold">{value}</p>
+      <p className="mt-3 font-display text-xl font-semibold break-words sm:text-2xl">{value}</p>
     </div>
   );
 }
