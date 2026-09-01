@@ -21,6 +21,17 @@ const bookingSchema = z.object({
   time: z.string().regex(/^\d{2}:\d{2}$/),
 });
 
+export const getPublicStaff = createServerFn({ method: "GET" }).handler(async () => {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data, error } = await supabaseAdmin
+    .from("staff")
+    .select("id, name, role")
+    .eq("is_active", true)
+    .order("name");
+  if (error) throw new Error("Could not load stylists");
+  return (data ?? []).map((s) => ({ id: s.id, name: s.name, role: s.role }));
+});
+
 export const getBookedSlots = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => availabilitySchema.parse(input))
   .handler(async ({ data }) => {
