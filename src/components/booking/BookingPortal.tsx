@@ -19,7 +19,7 @@ import {
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
-import { createBooking, getBookedSlots } from "@/lib/booking.functions";
+import { createBooking, getBookedSlots, getPublicStaff } from "@/lib/booking.functions";
 import {
   SALON,
   SERVICE_CATEGORIES,
@@ -93,16 +93,10 @@ export default function BookingPortal() {
     },
   });
 
+  const publicStaffFn = useServerFn(getPublicStaff);
   const staffQuery = useQuery({
     queryKey: ["public-staff"],
-    queryFn: async () => {
-      const { data, error } = await (supabase as any)
-        .from("public_staff")
-        .select("id, name, role")
-        .order("name");
-      if (error) throw error;
-      return (data ?? []) as Staff[];
-    },
+    queryFn: async () => (await publicStaffFn()) as Staff[],
   });
 
   const bookedSlotsFn = useServerFn(getBookedSlots);
