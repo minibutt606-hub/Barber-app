@@ -93,10 +93,32 @@ function AuthPage() {
           </div>
         </div>
 
-        <h1 className="mt-7 font-display text-3xl font-semibold">Welcome back</h1>
+        <div className="mt-7 flex gap-1 rounded-full bg-white/5 p-1">
+          {(["signin", "signup"] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => setMode(m)}
+              className={`flex-1 rounded-full py-2 text-xs font-semibold transition-colors ${
+                mode === m
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {m === "signin" ? "Sign in" : "Sign up"}
+            </button>
+          ))}
+        </div>
+
+        <h1 className="mt-5 font-display text-3xl font-semibold">
+          {mode === "signin" ? "Welcome back" : "Create your account"}
+        </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Sign in to manage bookings, billing and analytics.
+          {mode === "signin"
+            ? "Sign in to manage bookings, billing and analytics."
+            : "The first account becomes the salon owner."}
         </p>
+
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div>
