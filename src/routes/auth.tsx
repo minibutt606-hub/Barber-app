@@ -63,7 +63,7 @@ function AuthPage() {
         if (error) throw error;
       }
 
-      const access = await claimAccess({ data: {} }).catch(() => null);
+      const access = await claimAccess().catch(() => null);
       if (access && !access.role) {
         await supabase.auth.signOut();
         toast.error("Account created, but the salon owner must approve your access.");
