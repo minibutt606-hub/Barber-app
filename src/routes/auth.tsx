@@ -156,12 +156,14 @@ function AuthPage() {
             className="flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 text-sm font-semibold text-primary-foreground transition-transform active:scale-[0.98] disabled:opacity-60"
           >
             {loading && <Loader2 className="size-4 animate-spin" />}
-            Sign in
+            {mode === "signin" ? "Sign in" : "Create account"}
           </button>
         </form>
 
         <p className="mt-4 text-center text-xs text-muted-foreground">
-          Staff accounts are provisioned by the salon owner.
+          {mode === "signin"
+            ? "New here? Use Sign up to create the owner account."
+            : "Extra staff accounts need owner approval before access."}
         </p>
       </div>
     </div>
