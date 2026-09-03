@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { Crown, Loader2, LockKeyhole, Mail } from "lucide-react";
 import { toast } from "sonner";
 
+import { claimAdminAccess } from "@/lib/account.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { SALON } from "@/lib/salon";
 
