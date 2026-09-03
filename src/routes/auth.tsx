@@ -26,6 +26,8 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const claimAccess = useServerFn(claimAdminAccess);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -37,11 +39,37 @@ function AuthPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
-      });
-      if (error) throw error;
+      if (mode === "signup") {
+        const { error } = await supabase.auth.signUp({
+          email: email.trim(),
+          password,
+          options: { emailRedirectTo: `${window.location.origin}/auth` },
+        });
+        if (error) throw error;
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password,
+        });
+        if (signInError) {
+          toast.success("Account created. Please sign in.");
+          setMode("signin");
+          return;
+        }
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password,
+        });
+        if (error) throw error;
+      }
+
+      const access = await claimAccess({ data: {} }).catch(() => null);
+      if (access && !access.role) {
+        await supabase.auth.signOut();
+        toast.error("Account created, but the salon owner must approve your access.");
+        setMode("signin");
+        return;
+      }
       navigate({ to: "/admin", replace: true });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Authentication failed");
