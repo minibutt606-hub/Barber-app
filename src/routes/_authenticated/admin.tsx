@@ -8,6 +8,7 @@ import {
   LogOut,
   Scissors,
   ShoppingBag,
+  Bell,
 } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -18,6 +19,8 @@ import PosTerminal from "@/components/admin/PosTerminal";
 import Financials from "@/components/admin/Financials";
 import CatalogManager from "@/components/admin/CatalogManager";
 import type { PosDraft } from "@/components/admin/types";
+import { useBookingAlerts } from "@/components/admin/useBookingAlerts";
+import { formatDate, formatMoney, formatTime } from "@/lib/salon";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -53,6 +56,14 @@ function AdminDashboard() {
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<TabKey>("bookings");
   const [draft, setDraft] = useState<PosDraft | null>(null);
+  const [showAlerts, setShowAlerts] = useState(false);
+  const { alerts, unread, clearUnread } = useBookingAlerts();
+
+  function openBookings() {
+    setTab("bookings");
+    setShowAlerts(false);
+    clearUnread();
+  }
 
   async function signOut() {
     await queryClient.cancelQueries();
@@ -79,7 +90,7 @@ function AdminDashboard() {
             {TABS.map(({ key, label, icon: Icon }) => (
               <button
                 key={key}
-                onClick={() => setTab(key)}
+                onClick={() => { setTab(key); if (key === "bookings") clearUnread(); }}
                 className={cn(
                   "flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm transition-all",
                   tab === key
@@ -89,6 +100,11 @@ function AdminDashboard() {
               >
                 <Icon className="size-4" />
                 {label}
+                {key === "bookings" && unread > 0 && (
+                  <span className="ml-auto rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
+                    {unread}
+                  </span>
+                )}
               </button>
             ))}
           </nav>
@@ -108,13 +124,53 @@ function AdminDashboard() {
               </h1>
               <p className="text-sm text-muted-foreground">{SALON.tagline}</p>
             </div>
-            <button
-              onClick={signOut}
-              className="glass flex size-10 items-center justify-center rounded-full text-muted-foreground lg:hidden"
-              aria-label="Sign out"
-            >
-              <LogOut className="size-4" />
-            </button>
+            <div className="relative flex items-center gap-2">
+              <button
+                onClick={() => {
+                  setShowAlerts((v) => !v);
+                  clearUnread();
+                }}
+                className="glass relative flex size-10 items-center justify-center rounded-full text-muted-foreground"
+                aria-label="Booking notifications"
+              >
+                <Bell className="size-4" />
+                {unread > 0 && (
+                  <span className="absolute -top-1 -right-1 flex min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">
+                    {unread}
+                  </span>
+                )}
+              </button>
+              <button
+                onClick={signOut}
+                className="glass flex size-10 items-center justify-center rounded-full text-muted-foreground lg:hidden"
+                aria-label="Sign out"
+              >
+                <LogOut className="size-4" />
+              </button>
+
+              {showAlerts && (
+                <div className="glass-strong absolute top-12 right-0 z-50 w-72 space-y-2 rounded-3xl p-4">
+                  <p className="text-xs tracking-wider text-muted-foreground uppercase">
+                    New bookings
+                  </p>
+                  {alerts.length === 0 && (
+                    <p className="text-xs text-muted-foreground">No new bookings yet.</p>
+                  )}
+                  {alerts.map((a) => (
+                    <button
+                      key={a.id}
+                      onClick={openBookings}
+                      className="w-full rounded-2xl bg-white/5 px-3 py-2 text-left"
+                    >
+                      <p className="text-xs font-semibold text-primary">{a.code}</p>
+                      <p className="text-[11px] text-muted-foreground">
+                        {formatDate(a.date)} · {formatTime(a.time)} · {formatMoney(a.amount)}
+                      </p>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </header>
 
           {tab === "bookings" && (
@@ -136,13 +192,20 @@ function AdminDashboard() {
         {TABS.map(({ key, label, icon: Icon }) => (
           <button
             key={key}
-            onClick={() => setTab(key)}
+            onClick={() => { setTab(key); if (key === "bookings") clearUnread(); }}
             className={cn(
               "flex h-full flex-1 flex-col items-center justify-center gap-1 rounded-2xl text-[10px] leading-none transition-all",
               tab === key ? "bg-primary/15 text-primary" : "text-muted-foreground",
             )}
           >
-            <Icon className="size-4 shrink-0" />
+            <span className="relative">
+              <Icon className="size-4 shrink-0" />
+              {key === "bookings" && unread > 0 && (
+                <span className="absolute -top-1.5 -right-2 flex min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold text-primary-foreground">
+                  {unread}
+                </span>
+              )}
+            </span>
             <span className="whitespace-nowrap">{label}</span>
           </button>
         ))}
