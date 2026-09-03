@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { Crown, Loader2, LockKeyhole, Mail } from "lucide-react";
 import { toast } from "sonner";
 
+import { claimAdminAccess } from "@/lib/account.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { SALON } from "@/lib/salon";
 
@@ -24,6 +26,8 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const claimAccess = useServerFn(claimAdminAccess);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -35,11 +39,37 @@ function AuthPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
-      });
-      if (error) throw error;
+      if (mode === "signup") {
+        const { error } = await supabase.auth.signUp({
+          email: email.trim(),
+          password,
+          options: { emailRedirectTo: `${window.location.origin}/auth` },
+        });
+        if (error) throw error;
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password,
+        });
+        if (signInError) {
+          toast.success("Account created. Please sign in.");
+          setMode("signin");
+          return;
+        }
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password,
+        });
+        if (error) throw error;
+      }
+
+      const access = await claimAccess().catch(() => null);
+      if (access && !access.role) {
+        await supabase.auth.signOut();
+        toast.error("Account created, but the salon owner must approve your access.");
+        setMode("signin");
+        return;
+      }
       navigate({ to: "/admin", replace: true });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Authentication failed");
@@ -63,10 +93,32 @@ function AuthPage() {
           </div>
         </div>
 
-        <h1 className="mt-7 font-display text-3xl font-semibold">Welcome back</h1>
+        <div className="mt-7 flex gap-1 rounded-full bg-white/5 p-1">
+          {(["signin", "signup"] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => setMode(m)}
+              className={`flex-1 rounded-full py-2 text-xs font-semibold transition-colors ${
+                mode === m
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {m === "signin" ? "Sign in" : "Sign up"}
+            </button>
+          ))}
+        </div>
+
+        <h1 className="mt-5 font-display text-3xl font-semibold">
+          {mode === "signin" ? "Welcome back" : "Create your account"}
+        </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Sign in to manage bookings, billing and analytics.
+          {mode === "signin"
+            ? "Sign in to manage bookings, billing and analytics."
+            : "The first account becomes the salon owner."}
         </p>
+
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div>
@@ -104,12 +156,14 @@ function AuthPage() {
             className="flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 text-sm font-semibold text-primary-foreground transition-transform active:scale-[0.98] disabled:opacity-60"
           >
             {loading && <Loader2 className="size-4 animate-spin" />}
-            Sign in
+            {mode === "signin" ? "Sign in" : "Create account"}
           </button>
         </form>
 
         <p className="mt-4 text-center text-xs text-muted-foreground">
-          Staff accounts are provisioned by the salon owner.
+          {mode === "signin"
+            ? "New here? Use Sign up to create the owner account."
+            : "Extra staff accounts need owner approval before access."}
         </p>
       </div>
     </div>
