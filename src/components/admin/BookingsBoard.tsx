@@ -1,4 +1,3 @@
-import { useEffect, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   BadgeCheck,
@@ -24,34 +23,8 @@ const STATUS_STYLES: Record<string, string> = {
   cancelled: "bg-destructive/15 text-destructive",
 };
 
-function playChime() {
-  try {
-    const Ctx =
-      window.AudioContext ??
-      (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-    if (!Ctx) return;
-    const ctx = new Ctx();
-    const notes = [880, 1174];
-    notes.forEach((freq, i) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = "sine";
-      osc.frequency.value = freq;
-      gain.gain.setValueAtTime(0.0001, ctx.currentTime + i * 0.18);
-      gain.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + i * 0.18 + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + i * 0.18 + 0.25);
-      osc.connect(gain).connect(ctx.destination);
-      osc.start(ctx.currentTime + i * 0.18);
-      osc.stop(ctx.currentTime + i * 0.18 + 0.3);
-    });
-  } catch {
-    /* audio is a nice-to-have */
-  }
-}
-
 export default function BookingsBoard({ onConvert }: { onConvert: (draft: PosDraft) => void }) {
   const queryClient = useQueryClient();
-  const mounted = useRef(false);
 
   const { data } = useQuery({
     queryKey: ["admin-board"],
@@ -76,30 +49,6 @@ export default function BookingsBoard({ onConvert }: { onConvert: (draft: PosDra
       };
     },
   });
-
-  useEffect(() => {
-    const channel = supabase
-      .channel("appointments-live")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "appointments" },
-        (payload) => {
-          queryClient.invalidateQueries({ queryKey: ["admin-board"] });
-          queryClient.invalidateQueries({ queryKey: ["admin-financials"] });
-          if (payload.eventType === "INSERT" && mounted.current) {
-            playChime();
-            toast.success("New booking received", {
-              description: `Ref ${(payload.new as Appointment).booking_code}`,
-            });
-          }
-        },
-      )
-      .subscribe();
-    mounted.current = true;
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [queryClient]);
 
   const updateStatus = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
