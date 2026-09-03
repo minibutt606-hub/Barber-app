@@ -16,8 +16,9 @@ export const claimAdminAccess = createServerFn({ method: "POST" })
       .select("role")
       .eq("user_id", context.userId);
 
-    if (mine && mine.length > 0) {
-      return { role: mine[0].role as string, granted: false };
+    const existing = mine?.[0];
+    if (existing) {
+      return { role: existing.role as string, granted: false };
     }
 
     const { count } = await supabaseAdmin
