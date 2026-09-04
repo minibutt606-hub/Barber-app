@@ -163,10 +163,10 @@ export default function BookingPortal() {
           </div>
           <div>
             <p className="font-display text-xl leading-none font-semibold tracking-wide">
-              {SALON.name}
+              {salon.name}
             </p>
             <p className="text-[11px] tracking-[0.2em] text-muted-foreground uppercase">
-              {SALON.tagline}
+              {salon.tagline}
             </p>
           </div>
         </div>
@@ -182,11 +182,13 @@ export default function BookingPortal() {
         <section className="glass mt-6 rounded-3xl p-6 sm:p-8">
           <div className="flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-[11px] font-medium tracking-wider text-primary uppercase">
-              <Sparkles className="size-3" /> Open {SALON.openFrom} – {SALON.openTo}
+              <Sparkles className="size-3" /> Open {salon.open_from} – {salon.open_to}
             </span>
-            <span className="glass inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-medium tracking-wider text-muted-foreground uppercase">
-              <MapPin className="size-3 text-primary" /> {SALON.address}
-            </span>
+            {salon.address && (
+              <span className="glass inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-medium tracking-wider text-muted-foreground uppercase">
+                <MapPin className="size-3 text-primary" /> {salon.address}
+              </span>
+            )}
           </div>
           <h1 className="mt-4 font-display text-4xl leading-tight font-semibold sm:text-5xl">
             Book your <span className="gold-text">grooming ritual</span>
