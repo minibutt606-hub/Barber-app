@@ -18,8 +18,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { supabase } from "@/integrations/supabase/client";
-import { createBooking, getBookedSlots, getPublicStaff } from "@/lib/booking.functions";
+import { createBooking, getBookedSlots, getSalonPortal } from "@/lib/booking.functions";
 import {
   SALON,
   SERVICE_CATEGORIES,
