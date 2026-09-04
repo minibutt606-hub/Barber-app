@@ -115,11 +115,27 @@ function AuthPage() {
         <p className="mt-1 text-sm text-muted-foreground">
           {mode === "signin"
             ? "Sign in to manage bookings, billing and analytics."
-            : "The first account becomes the salon owner."}
+            : "You'll get your own private salon workspace."}
         </p>
 
-
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          {mode === "signup" && (
+            <div>
+              <label className="text-xs text-muted-foreground">Salon name</label>
+              <div className="mt-1 flex items-center gap-2 rounded-2xl bg-white/5 px-4 focus-within:ring-1 focus-within:ring-primary/60">
+                <Store className="size-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  required
+                  minLength={2}
+                  value={salonName}
+                  onChange={(e) => setSalonName(e.target.value)}
+                  placeholder="Paragon Barber"
+                  className="w-full bg-transparent py-3 text-sm outline-none"
+                />
+              </div>
+            </div>
+          )}
           <div>
             <label className="text-xs text-muted-foreground">Email</label>
             <div className="mt-1 flex items-center gap-2 rounded-2xl bg-white/5 px-4 focus-within:ring-1 focus-within:ring-primary/60">
