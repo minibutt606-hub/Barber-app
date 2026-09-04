@@ -141,7 +141,7 @@ export default function BookingPortal() {
 
   const summaryMessage = () =>
     [
-      "Assalam-o-Alaikum Paragon Barber! I have booked an appointment.",
+      `Assalam-o-Alaikum ${salon.name}! I have booked an appointment.`,
       "",
       `*Booking Ref:* ${confirmation?.bookingCode}`,
       `*Name:* ${name}`,
