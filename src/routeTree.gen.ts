@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
-import { Route as BookRouteImport } from './routes/book'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as BookSlugRouteImport } from './routes/book.$slug'
 
@@ -30,33 +29,26 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BookRoute = BookRouteImport.update({
-  id: '/book',
-  path: '/book',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const BookSlugRoute = BookSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => BookRoute,
+  id: '/book/$slug',
+  path: '/book/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/book': typeof BookRouteWithChildren
   '/admin': typeof AuthenticatedAdminRoute
   '/book/$slug': typeof BookSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/book': typeof BookRouteWithChildren
   '/admin': typeof AuthenticatedAdminRoute
   '/book/$slug': typeof BookSlugRoute
 }
@@ -65,21 +57,19 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
-  '/book': typeof BookRouteWithChildren
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/book/$slug': typeof BookSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/book' | '/admin' | '/book/$slug'
+  fullPaths: '/' | '/auth' | '/admin' | '/book/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/book' | '/admin' | '/book/$slug'
+  to: '/' | '/auth' | '/admin' | '/book/$slug'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
-    | '/book'
     | '/_authenticated/admin'
     | '/book/$slug'
   fileRoutesById: FileRoutesById
@@ -88,7 +78,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
-  BookRoute: typeof BookRouteWithChildren
+  BookSlugRoute: typeof BookSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -114,13 +104,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/book': {
-      id: '/book'
-      path: '/book'
-      fullPath: '/book'
-      preLoaderRoute: typeof BookRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
       path: '/admin'
@@ -130,10 +113,10 @@ declare module '@tanstack/react-router' {
     }
     '/book/$slug': {
       id: '/book/$slug'
-      path: '/$slug'
+      path: '/book/$slug'
       fullPath: '/book/$slug'
       preLoaderRoute: typeof BookSlugRouteImport
-      parentRoute: typeof BookRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -149,21 +132,11 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
-interface BookRouteChildren {
-  BookSlugRoute: typeof BookSlugRoute
-}
-
-const BookRouteChildren: BookRouteChildren = {
-  BookSlugRoute: BookSlugRoute,
-}
-
-const BookRouteWithChildren = BookRoute._addFileChildren(BookRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
-  BookRoute: BookRouteWithChildren,
+  BookSlugRoute: BookSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

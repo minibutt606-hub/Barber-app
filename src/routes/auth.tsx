@@ -1,20 +1,19 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Crown, Loader2, LockKeyhole, Mail } from "lucide-react";
+import { Crown, Loader2, LockKeyhole, Mail, Store } from "lucide-react";
 import { toast } from "sonner";
 
-import { claimAdminAccess } from "@/lib/account.functions";
+import { ensureSalonWorkspace } from "@/lib/account.functions";
 import { supabase } from "@/integrations/supabase/client";
-import { SALON } from "@/lib/salon";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Staff Sign In — Paragon Barber" },
-      { name: "description", content: "Secure sign in for Paragon Barber salon staff." },
-      { property: "og:title", content: "Staff Sign In — Paragon Barber" },
-      { property: "og:description", content: "Access the salon POS and bookings dashboard." },
+      { title: "Salon Sign In — SalonOS" },
+      { name: "description", content: "Sign in or create your own salon workspace on SalonOS." },
+      { property: "og:title", content: "Salon Sign In — SalonOS" },
+      { property: "og:description", content: "Access your salon POS and bookings dashboard." },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -25,9 +24,10 @@ function AuthPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [salonName, setSalonName] = useState("");
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<"signin" | "signup">("signin");
-  const claimAccess = useServerFn(claimAdminAccess);
+  const setupWorkspace = useServerFn(ensureSalonWorkspace);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
