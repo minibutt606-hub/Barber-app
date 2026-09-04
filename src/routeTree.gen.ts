@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BookRouteImport } from './routes/book'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as BookSlugRouteImport } from './routes/book.$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -39,32 +40,40 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const BookSlugRoute = BookSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => BookRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/book': typeof BookRoute
+  '/book': typeof BookRouteWithChildren
   '/admin': typeof AuthenticatedAdminRoute
+  '/book/$slug': typeof BookSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/book': typeof BookRoute
+  '/book': typeof BookRouteWithChildren
   '/admin': typeof AuthenticatedAdminRoute
+  '/book/$slug': typeof BookSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
-  '/book': typeof BookRoute
+  '/book': typeof BookRouteWithChildren
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/book/$slug': typeof BookSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/book' | '/admin'
+  fullPaths: '/' | '/auth' | '/book' | '/admin' | '/book/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/book' | '/admin'
+  to: '/' | '/auth' | '/book' | '/admin' | '/book/$slug'
   id:
     | '__root__'
     | '/'
@@ -72,13 +81,14 @@ export interface FileRouteTypes {
     | '/auth'
     | '/book'
     | '/_authenticated/admin'
+    | '/book/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
-  BookRoute: typeof BookRoute
+  BookRoute: typeof BookRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -118,6 +128,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/book/$slug': {
+      id: '/book/$slug'
+      path: '/$slug'
+      fullPath: '/book/$slug'
+      preLoaderRoute: typeof BookSlugRouteImport
+      parentRoute: typeof BookRoute
+    }
   }
 }
 
@@ -132,11 +149,21 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface BookRouteChildren {
+  BookSlugRoute: typeof BookSlugRoute
+}
+
+const BookRouteChildren: BookRouteChildren = {
+  BookSlugRoute: BookSlugRoute,
+}
+
+const BookRouteWithChildren = BookRoute._addFileChildren(BookRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
-  BookRoute: BookRoute,
+  BookRoute: BookRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
