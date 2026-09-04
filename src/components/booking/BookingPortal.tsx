@@ -18,8 +18,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { supabase } from "@/integrations/supabase/client";
-import { createBooking, getBookedSlots, getPublicStaff } from "@/lib/booking.functions";
+import { createBooking, getBookedSlots, getSalonPortal } from "@/lib/booking.functions";
 import {
   SALON,
   SERVICE_CATEGORIES,
@@ -66,7 +65,7 @@ function StepDots({ step }: { step: number }) {
   );
 }
 
-export default function BookingPortal() {
+export default function BookingPortal({ slug }: { slug: string }) {
   const [step, setStep] = useState(0);
   const [category, setCategory] = useState<string>("Hair");
   const [selected, setSelected] = useState<string[]>([]);
@@ -80,29 +79,17 @@ export default function BookingPortal() {
     null,
   );
 
-  const servicesQuery = useQuery({
-    queryKey: ["public-services"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("services")
-        .select("id, name, category, price, duration_minutes, description")
-        .eq("is_active", true)
-        .order("price");
-      if (error) throw error;
-      return data as Service[];
-    },
-  });
-
-  const publicStaffFn = useServerFn(getPublicStaff);
-  const staffQuery = useQuery({
-    queryKey: ["public-staff"],
-    queryFn: async () => (await publicStaffFn()) as Staff[],
+  const portalFn = useServerFn(getSalonPortal);
+  const portalQuery = useQuery({
+    queryKey: ["salon-portal", slug],
+    queryFn: () => portalFn({ data: { slug } }),
+    retry: false,
   });
 
   const bookedSlotsFn = useServerFn(getBookedSlots);
   const slotsQuery = useQuery({
-    queryKey: ["booked-slots", date, staffId],
-    queryFn: () => bookedSlotsFn({ data: { date, staffId } }),
+    queryKey: ["booked-slots", slug, date, staffId],
+    queryFn: () => bookedSlotsFn({ data: { slug, date, staffId } }),
     enabled: step === 1,
   });
 
@@ -110,7 +97,16 @@ export default function BookingPortal() {
   const booking = useMutation({
     mutationFn: () =>
       createBookingFn({
-        data: { name, phone, notes: notes || null, serviceIds: selected, staffId, date, time: time! },
+        data: {
+          slug,
+          name,
+          phone,
+          notes: notes || null,
+          serviceIds: selected,
+          staffId,
+          date,
+          time: time!,
+        },
       }),
     onSuccess: (result) => {
       setConfirmation({ bookingCode: result.bookingCode, total: result.total });
@@ -119,8 +115,17 @@ export default function BookingPortal() {
     onError: () => toast.error("We couldn't save your booking. Please try again."),
   });
 
-  const services = servicesQuery.data ?? [];
-  const staff = staffQuery.data ?? [];
+  const salon = portalQuery.data?.salon ?? {
+    name: SALON.name,
+    tagline: SALON.tagline,
+    address: SALON.address as string | null,
+    whatsapp: SALON.whatsapp as string | null,
+    open_from: SALON.openFrom,
+    open_to: SALON.openTo,
+  };
+  const servicesQuery = portalQuery;
+  const services = (portalQuery.data?.services ?? []) as Service[];
+  const staff = (portalQuery.data?.staff ?? []) as Staff[];
   const chosen = useMemo(
     () => services.filter((s) => selected.includes(s.id)),
     [services, selected],
@@ -141,7 +146,7 @@ export default function BookingPortal() {
 
   const summaryMessage = () =>
     [
-      "Assalam-o-Alaikum Paragon Barber! I have booked an appointment.",
+      `Assalam-o-Alaikum ${salon.name}! I have booked an appointment.`,
       "",
       `*Booking Ref:* ${confirmation?.bookingCode}`,
       `*Name:* ${name}`,
@@ -163,10 +168,10 @@ export default function BookingPortal() {
           </div>
           <div>
             <p className="font-display text-xl leading-none font-semibold tracking-wide">
-              {SALON.name}
+              {salon.name}
             </p>
             <p className="text-[11px] tracking-[0.2em] text-muted-foreground uppercase">
-              {SALON.tagline}
+              {salon.tagline}
             </p>
           </div>
         </div>
@@ -182,11 +187,13 @@ export default function BookingPortal() {
         <section className="glass mt-6 rounded-3xl p-6 sm:p-8">
           <div className="flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-[11px] font-medium tracking-wider text-primary uppercase">
-              <Sparkles className="size-3" /> Open {SALON.openFrom} – {SALON.openTo}
+              <Sparkles className="size-3" /> Open {salon.open_from} – {salon.open_to}
             </span>
-            <span className="glass inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-medium tracking-wider text-muted-foreground uppercase">
-              <MapPin className="size-3 text-primary" /> {SALON.address}
-            </span>
+            {salon.address && (
+              <span className="glass inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-medium tracking-wider text-muted-foreground uppercase">
+                <MapPin className="size-3 text-primary" /> {salon.address}
+              </span>
+            )}
           </div>
           <h1 className="mt-4 font-display text-4xl leading-tight font-semibold sm:text-5xl">
             Book your <span className="gold-text">grooming ritual</span>
@@ -449,7 +456,7 @@ export default function BookingPortal() {
             </div>
 
             <a
-              href={whatsappLink(SALON.whatsapp, summaryMessage())}
+              href={whatsappLink(salon.whatsapp ?? "", summaryMessage())}
               target="_blank"
               rel="noopener noreferrer"
               className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-success px-6 py-3.5 text-sm font-semibold text-success-foreground transition-transform active:scale-[0.98]"

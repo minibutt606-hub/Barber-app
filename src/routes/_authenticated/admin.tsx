@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
-import { SALON } from "@/lib/salon";
+import { useMySalon } from "@/components/admin/useMySalon";
 import { cn } from "@/lib/utils";
 import BookingsBoard from "@/components/admin/BookingsBoard";
 import PosTerminal from "@/components/admin/PosTerminal";
@@ -58,6 +58,7 @@ function AdminDashboard() {
   const [draft, setDraft] = useState<PosDraft | null>(null);
   const [showAlerts, setShowAlerts] = useState(false);
   const { alerts, unread, clearUnread } = useBookingAlerts();
+  const salon = useMySalon();
 
   function openBookings() {
     setTab("bookings");
@@ -82,7 +83,7 @@ function AdminDashboard() {
           <div className="flex items-center gap-2 px-2 py-3">
             <LayoutGrid className="size-4 text-primary" />
             <div>
-              <p className="font-display text-lg leading-tight font-semibold">{SALON.name}</p>
+              <p className="font-display text-lg leading-tight font-semibold">{salon.name}</p>
               <p className="text-[11px] text-muted-foreground">Command centre</p>
             </div>
           </div>
@@ -114,6 +115,22 @@ function AdminDashboard() {
           >
             <LogOut className="size-4" /> Sign out
           </button>
+
+          {salon.slug && (
+            <div className="mt-4 rounded-2xl bg-white/5 p-3">
+              <p className="text-[10px] tracking-wider text-muted-foreground uppercase">
+                Your booking link
+              </p>
+              <a
+                href={`/book/${salon.slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-1 block truncate text-xs text-primary"
+              >
+                /book/{salon.slug}
+              </a>
+            </div>
+          )}
         </aside>
 
         <main className="min-w-0 flex-1 space-y-6">
@@ -122,7 +139,7 @@ function AdminDashboard() {
               <h1 className="font-display text-3xl font-semibold">
                 {TABS.find((t) => t.key === tab)?.label}
               </h1>
-              <p className="text-sm text-muted-foreground">{SALON.tagline}</p>
+              <p className="text-sm text-muted-foreground">{salon.tagline}</p>
             </div>
             <div className="relative flex items-center gap-2">
               <button

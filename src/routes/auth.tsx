@@ -1,20 +1,19 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Crown, Loader2, LockKeyhole, Mail } from "lucide-react";
+import { Crown, Loader2, LockKeyhole, Mail, Store } from "lucide-react";
 import { toast } from "sonner";
 
-import { claimAdminAccess } from "@/lib/account.functions";
+import { ensureSalonWorkspace } from "@/lib/account.functions";
 import { supabase } from "@/integrations/supabase/client";
-import { SALON } from "@/lib/salon";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Staff Sign In — Paragon Barber" },
-      { name: "description", content: "Secure sign in for Paragon Barber salon staff." },
-      { property: "og:title", content: "Staff Sign In — Paragon Barber" },
-      { property: "og:description", content: "Access the salon POS and bookings dashboard." },
+      { title: "Salon Sign In — SalonOS" },
+      { name: "description", content: "Sign in or create your own salon workspace on SalonOS." },
+      { property: "og:title", content: "Salon Sign In — SalonOS" },
+      { property: "og:description", content: "Access your salon POS and bookings dashboard." },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -25,9 +24,10 @@ function AuthPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [salonName, setSalonName] = useState("");
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<"signin" | "signup">("signin");
-  const claimAccess = useServerFn(claimAdminAccess);
+  const setupWorkspace = useServerFn(ensureSalonWorkspace);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -63,12 +63,11 @@ function AuthPage() {
         if (error) throw error;
       }
 
-      const access = await claimAccess().catch(() => null);
-      if (access && !access.role) {
-        await supabase.auth.signOut();
-        toast.error("Account created, but the salon owner must approve your access.");
-        setMode("signin");
-        return;
+      const workspace = await setupWorkspace({
+        data: { salonName: salonName.trim() || null },
+      });
+      if (workspace?.created) {
+        toast.success(`${workspace.salon?.name} workspace is ready`);
       }
       navigate({ to: "/admin", replace: true });
     } catch (error) {
@@ -86,7 +85,7 @@ function AuthPage() {
             <Crown className="size-5 text-primary" />
           </div>
           <div>
-            <p className="font-display text-xl font-semibold">{SALON.name}</p>
+            <p className="font-display text-xl font-semibold">SalonOS</p>
             <p className="text-[11px] tracking-[0.2em] text-muted-foreground uppercase">
               Salon control room
             </p>
@@ -116,11 +115,27 @@ function AuthPage() {
         <p className="mt-1 text-sm text-muted-foreground">
           {mode === "signin"
             ? "Sign in to manage bookings, billing and analytics."
-            : "The first account becomes the salon owner."}
+            : "You'll get your own private salon workspace."}
         </p>
 
-
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          {mode === "signup" && (
+            <div>
+              <label className="text-xs text-muted-foreground">Salon name</label>
+              <div className="mt-1 flex items-center gap-2 rounded-2xl bg-white/5 px-4 focus-within:ring-1 focus-within:ring-primary/60">
+                <Store className="size-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  required
+                  minLength={2}
+                  value={salonName}
+                  onChange={(e) => setSalonName(e.target.value)}
+                  placeholder="Paragon Barber"
+                  className="w-full bg-transparent py-3 text-sm outline-none"
+                />
+              </div>
+            </div>
+          )}
           <div>
             <label className="text-xs text-muted-foreground">Email</label>
             <div className="mt-1 flex items-center gap-2 rounded-2xl bg-white/5 px-4 focus-within:ring-1 focus-within:ring-primary/60">

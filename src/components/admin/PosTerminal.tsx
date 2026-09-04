@@ -4,7 +4,8 @@ import { Loader2, Minus, MessageCircle, Plus, Printer, Search, Trash2, UserPlus 
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
-import { PAYMENT_METHODS, SALON, formatMoney, type PaymentMethod } from "@/lib/salon";
+import { PAYMENT_METHODS, formatMoney, type PaymentMethod } from "@/lib/salon";
+import { useMySalon } from "./useMySalon";
 import { cn } from "@/lib/utils";
 import type { Customer, PosDraft, PosLineItem, Service, Staff } from "./types";
 
@@ -182,11 +183,12 @@ export default function PosTerminal({
       toast.error(error instanceof Error ? error.message : "Could not settle the invoice"),
   });
 
+  const salon = useMySalon();
   const staffName = staff.find((s) => s.id === staffId)?.name ?? null;
 
   const receiptText = () =>
     [
-      `*${SALON.name}* — Invoice`,
+      `*${salon.name}* — Invoice`,
       `*Invoice:* ${lastInvoiceNo ?? "DRAFT"}`,
       `*Date:* ${new Date().toLocaleString("en-GB")}`,
       customerName ? `*Guest:* ${customerName}` : "",
@@ -202,7 +204,7 @@ export default function PosTerminal({
       `*Paid (${method}):* ${formatMoney(paid)}`,
       due ? `*Balance due:* ${formatMoney(due)}` : "",
       "",
-      `${SALON.address}`,
+      `${salon.address}`,
       "Thank you for visiting!",
     ]
       .filter(Boolean)
@@ -214,7 +216,7 @@ export default function PosTerminal({
       return;
     }
     const digits = customerPhone.replace(/\D/g, "");
-    let target: string = SALON.whatsapp;
+    let target: string = salon.whatsapp;
     if (digits.length >= 10) {
       target = digits.startsWith("0")
         ? `92${digits.slice(1)}`
@@ -432,9 +434,9 @@ export default function PosTerminal({
       {/* Thermal receipt (print only) */}
       <div id="thermal-receipt" className="hidden print:block">
         <div style={{ textAlign: "center" }}>
-          <strong>{SALON.name}</strong>
-          <div>{SALON.address}</div>
-          <div>{SALON.phone}</div>
+          <strong>{salon.name}</strong>
+          <div>{salon.address}</div>
+          <div>{salon.phone}</div>
           <div>--------------------------------</div>
         </div>
         <div>Invoice: {lastInvoiceNo ?? "DRAFT"}</div>
