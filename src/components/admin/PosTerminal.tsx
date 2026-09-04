@@ -4,7 +4,8 @@ import { Loader2, Minus, MessageCircle, Plus, Printer, Search, Trash2, UserPlus 
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
-import { PAYMENT_METHODS, SALON, formatMoney, type PaymentMethod } from "@/lib/salon";
+import { PAYMENT_METHODS, formatMoney, type PaymentMethod } from "@/lib/salon";
+import { useMySalon } from "./useMySalon";
 import { cn } from "@/lib/utils";
 import type { Customer, PosDraft, PosLineItem, Service, Staff } from "./types";
 
