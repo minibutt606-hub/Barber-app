@@ -66,7 +66,7 @@ function StepDots({ step }: { step: number }) {
   );
 }
 
-export default function BookingPortal() {
+export default function BookingPortal({ slug }: { slug: string }) {
   const [step, setStep] = useState(0);
   const [category, setCategory] = useState<string>("Hair");
   const [selected, setSelected] = useState<string[]>([]);
@@ -80,29 +80,17 @@ export default function BookingPortal() {
     null,
   );
 
-  const servicesQuery = useQuery({
-    queryKey: ["public-services"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("services")
-        .select("id, name, category, price, duration_minutes, description")
-        .eq("is_active", true)
-        .order("price");
-      if (error) throw error;
-      return data as Service[];
-    },
-  });
-
-  const publicStaffFn = useServerFn(getPublicStaff);
-  const staffQuery = useQuery({
-    queryKey: ["public-staff"],
-    queryFn: async () => (await publicStaffFn()) as Staff[],
+  const portalFn = useServerFn(getSalonPortal);
+  const portalQuery = useQuery({
+    queryKey: ["salon-portal", slug],
+    queryFn: () => portalFn({ data: { slug } }),
+    retry: false,
   });
 
   const bookedSlotsFn = useServerFn(getBookedSlots);
   const slotsQuery = useQuery({
-    queryKey: ["booked-slots", date, staffId],
-    queryFn: () => bookedSlotsFn({ data: { date, staffId } }),
+    queryKey: ["booked-slots", slug, date, staffId],
+    queryFn: () => bookedSlotsFn({ data: { slug, date, staffId } }),
     enabled: step === 1,
   });
 
@@ -110,7 +98,16 @@ export default function BookingPortal() {
   const booking = useMutation({
     mutationFn: () =>
       createBookingFn({
-        data: { name, phone, notes: notes || null, serviceIds: selected, staffId, date, time: time! },
+        data: {
+          slug,
+          name,
+          phone,
+          notes: notes || null,
+          serviceIds: selected,
+          staffId,
+          date,
+          time: time!,
+        },
       }),
     onSuccess: (result) => {
       setConfirmation({ bookingCode: result.bookingCode, total: result.total });
@@ -119,8 +116,17 @@ export default function BookingPortal() {
     onError: () => toast.error("We couldn't save your booking. Please try again."),
   });
 
-  const services = servicesQuery.data ?? [];
-  const staff = staffQuery.data ?? [];
+  const salon = portalQuery.data?.salon ?? {
+    name: SALON.name,
+    tagline: SALON.tagline,
+    address: SALON.address as string | null,
+    whatsapp: SALON.whatsapp as string | null,
+    open_from: SALON.openFrom,
+    open_to: SALON.openTo,
+  };
+  const servicesQuery = portalQuery;
+  const services = (portalQuery.data?.services ?? []) as Service[];
+  const staff = (portalQuery.data?.staff ?? []) as Staff[];
   const chosen = useMemo(
     () => services.filter((s) => selected.includes(s.id)),
     [services, selected],
