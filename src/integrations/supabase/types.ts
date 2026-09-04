@@ -22,6 +22,7 @@ export type Database = {
           customer_id: string | null
           id: string
           notes: string | null
+          salon_id: string
           service_ids: string[]
           staff_id: string | null
           start_time: string
@@ -35,6 +36,7 @@ export type Database = {
           customer_id?: string | null
           id?: string
           notes?: string | null
+          salon_id?: string
           service_ids?: string[]
           staff_id?: string | null
           start_time: string
@@ -48,6 +50,7 @@ export type Database = {
           customer_id?: string | null
           id?: string
           notes?: string | null
+          salon_id?: string
           service_ids?: string[]
           staff_id?: string | null
           start_time?: string
@@ -60,6 +63,13 @@ export type Database = {
             columns: ["customer_id"]
             isOneToOne: false
             referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: false
+            referencedRelation: "salons"
             referencedColumns: ["id"]
           },
           {
@@ -78,6 +88,7 @@ export type Database = {
           name: string
           notes: string | null
           phone: string
+          salon_id: string
           total_spent: number
           total_visits: number
         }
@@ -87,6 +98,7 @@ export type Database = {
           name: string
           notes?: string | null
           phone: string
+          salon_id?: string
           total_spent?: number
           total_visits?: number
         }
@@ -96,10 +108,19 @@ export type Database = {
           name?: string
           notes?: string | null
           phone?: string
+          salon_id?: string
           total_spent?: number
           total_visits?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "customers_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: false
+            referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       expenses: {
         Row: {
@@ -108,6 +129,7 @@ export type Database = {
           created_at: string
           expense_date: string
           id: string
+          salon_id: string
           title: string
         }
         Insert: {
@@ -116,6 +138,7 @@ export type Database = {
           created_at?: string
           expense_date?: string
           id?: string
+          salon_id?: string
           title: string
         }
         Update: {
@@ -124,9 +147,18 @@ export type Database = {
           created_at?: string
           expense_date?: string
           id?: string
+          salon_id?: string
           title?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "expenses_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: false
+            referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       invoices: {
         Row: {
@@ -139,6 +171,7 @@ export type Database = {
           items: Json
           paid_amount: number
           payment_method: string
+          salon_id: string
           staff_id: string | null
           subtotal: number
           total_amount: number
@@ -153,6 +186,7 @@ export type Database = {
           items?: Json
           paid_amount?: number
           payment_method?: string
+          salon_id?: string
           staff_id?: string | null
           subtotal?: number
           total_amount?: number
@@ -167,6 +201,7 @@ export type Database = {
           items?: Json
           paid_amount?: number
           payment_method?: string
+          salon_id?: string
           staff_id?: string | null
           subtotal?: number
           total_amount?: number
@@ -180,6 +215,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "invoices_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: false
+            referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "invoices_staff_id_fkey"
             columns: ["staff_id"]
             isOneToOne: false
@@ -187,6 +229,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      salons: {
+        Row: {
+          address: string | null
+          created_at: string
+          id: string
+          name: string
+          open_from: string
+          open_to: string
+          owner_id: string
+          phone: string | null
+          slug: string
+          tagline: string
+          whatsapp: string | null
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          open_from?: string
+          open_to?: string
+          owner_id: string
+          phone?: string | null
+          slug: string
+          tagline?: string
+          whatsapp?: string | null
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          open_from?: string
+          open_to?: string
+          owner_id?: string
+          phone?: string | null
+          slug?: string
+          tagline?: string
+          whatsapp?: string | null
+        }
+        Relationships: []
       }
       services: {
         Row: {
@@ -198,6 +282,7 @@ export type Database = {
           is_active: boolean
           name: string
           price: number
+          salon_id: string
         }
         Insert: {
           category?: string
@@ -208,6 +293,7 @@ export type Database = {
           is_active?: boolean
           name: string
           price?: number
+          salon_id?: string
         }
         Update: {
           category?: string
@@ -218,8 +304,17 @@ export type Database = {
           is_active?: boolean
           name?: string
           price?: number
+          salon_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "services_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: false
+            referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       staff: {
         Row: {
@@ -230,6 +325,7 @@ export type Database = {
           name: string
           phone: string | null
           role: string
+          salon_id: string
         }
         Insert: {
           commission_rate?: number
@@ -239,6 +335,7 @@ export type Database = {
           name: string
           phone?: string | null
           role?: string
+          salon_id?: string
         }
         Update: {
           commission_rate?: number
@@ -248,36 +345,56 @@ export type Database = {
           name?: string
           phone?: string | null
           role?: string
+          salon_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "staff_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: false
+            referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
           created_at: string
           id: string
           role: Database["public"]["Enums"]["app_role"]
+          salon_id: string
           user_id: string
         }
         Insert: {
           created_at?: string
           id?: string
           role: Database["public"]["Enums"]["app_role"]
+          salon_id: string
           user_id: string
         }
         Update: {
           created_at?: string
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          salon_id?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: false
+            referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      current_salon_id: { Args: never; Returns: string }
     }
     Enums: {
       app_role: "admin" | "staff"
