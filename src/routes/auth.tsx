@@ -63,12 +63,11 @@ function AuthPage() {
         if (error) throw error;
       }
 
-      const access = await claimAccess().catch(() => null);
-      if (access && !access.role) {
-        await supabase.auth.signOut();
-        toast.error("Account created, but the salon owner must approve your access.");
-        setMode("signin");
-        return;
+      const workspace = await setupWorkspace({
+        data: { salonName: salonName.trim() || null },
+      });
+      if (workspace?.created) {
+        toast.success(`${workspace.salon?.name} workspace is ready`);
       }
       navigate({ to: "/admin", replace: true });
     } catch (error) {
