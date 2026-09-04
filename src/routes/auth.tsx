@@ -85,7 +85,7 @@ function AuthPage() {
             <Crown className="size-5 text-primary" />
           </div>
           <div>
-            <p className="font-display text-xl font-semibold">{SALON.name}</p>
+            <p className="font-display text-xl font-semibold">SalonOS</p>
             <p className="text-[11px] tracking-[0.2em] text-muted-foreground uppercase">
               Salon control room
             </p>
