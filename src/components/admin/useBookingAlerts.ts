@@ -144,7 +144,7 @@ export function useBookingAlerts() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [queryClient]);
+  }, [push, queryClient]);
 
   return { alerts, unread, clearUnread };
 }
