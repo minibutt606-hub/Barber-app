@@ -47,6 +47,76 @@ export function useBookingAlerts() {
   const seen = useRef<Set<string>>(new Set());
 
   const clearUnread = useCallback(() => setUnread(0), []);
+  const primed = useRef(false);
+
+  const push = useCallback(
+    (row: {
+      id: string;
+      booking_code: string;
+      total_amount: number | string | null;
+      start_time: string;
+      appointment_date: string;
+    }) => {
+      if (seen.current.has(row.id)) return;
+      seen.current.add(row.id);
+      if (!primed.current) return; // don't announce bookings that already existed
+
+      playChime();
+      setUnread((n) => n + 1);
+      setAlerts((prev) =>
+        [
+          {
+            id: row.id,
+            code: row.booking_code,
+            amount: Number(row.total_amount ?? 0),
+            time: String(row.start_time).slice(0, 5),
+            date: row.appointment_date,
+            at: Date.now(),
+          },
+          ...prev,
+        ].slice(0, 12),
+      );
+      toast.success("New booking received", {
+        description: `Ref ${row.booking_code} · ${formatTime(
+          String(row.start_time).slice(0, 5),
+        )} · ${formatMoney(Number(row.total_amount ?? 0))}`,
+        duration: 8000,
+      });
+    },
+    [],
+  );
+
+  // Safety net: poll for fresh bookings in case the realtime socket drops.
+  useEffect(() => {
+    let cancelled = false;
+
+    async function poll() {
+      const { data, error } = await supabase
+        .from("appointments")
+        .select("id, booking_code, total_amount, start_time, appointment_date, created_at")
+        .order("created_at", { ascending: false })
+        .limit(20);
+      if (cancelled || error || !data) return;
+
+      const fresh = data.filter((row) => !seen.current.has(row.id));
+      if (!primed.current) {
+        data.forEach((row) => seen.current.add(row.id));
+        primed.current = true;
+        return;
+      }
+      if (fresh.length === 0) return;
+      queryClient.invalidateQueries({ queryKey: ["admin-board"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-financials"] });
+      [...fresh].reverse().forEach(push);
+    }
+
+    void poll();
+    const timer = setInterval(() => void poll(), 20000);
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
+  }, [push, queryClient]);
 
   useEffect(() => {
     const channel = supabase
@@ -58,38 +128,15 @@ export function useBookingAlerts() {
           queryClient.invalidateQueries({ queryKey: ["admin-board"] });
           queryClient.invalidateQueries({ queryKey: ["admin-financials"] });
           if (payload.eventType !== "INSERT") return;
-
-          const row = payload.new as {
-            id: string;
-            booking_code: string;
-            total_amount: number;
-            start_time: string;
-            appointment_date: string;
-          };
-          if (seen.current.has(row.id)) return;
-          seen.current.add(row.id);
-
-          playChime();
-          setUnread((n) => n + 1);
-          setAlerts((prev) =>
-            [
-              {
-                id: row.id,
-                code: row.booking_code,
-                amount: Number(row.total_amount ?? 0),
-                time: String(row.start_time).slice(0, 5),
-                date: row.appointment_date,
-                at: Date.now(),
-              },
-              ...prev,
-            ].slice(0, 12),
+          push(
+            payload.new as {
+              id: string;
+              booking_code: string;
+              total_amount: number;
+              start_time: string;
+              appointment_date: string;
+            },
           );
-          toast.success("New booking received", {
-            description: `Ref ${row.booking_code} · ${formatTime(
-              String(row.start_time).slice(0, 5),
-            )} · ${formatMoney(Number(row.total_amount ?? 0))}`,
-            duration: 8000,
-          });
         },
       )
       .subscribe();
@@ -97,7 +144,7 @@ export function useBookingAlerts() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [queryClient]);
+  }, [push, queryClient]);
 
   return { alerts, unread, clearUnread };
 }
