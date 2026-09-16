@@ -128,38 +128,15 @@ export function useBookingAlerts() {
           queryClient.invalidateQueries({ queryKey: ["admin-board"] });
           queryClient.invalidateQueries({ queryKey: ["admin-financials"] });
           if (payload.eventType !== "INSERT") return;
-
-          const row = payload.new as {
-            id: string;
-            booking_code: string;
-            total_amount: number;
-            start_time: string;
-            appointment_date: string;
-          };
-          if (seen.current.has(row.id)) return;
-          seen.current.add(row.id);
-
-          playChime();
-          setUnread((n) => n + 1);
-          setAlerts((prev) =>
-            [
-              {
-                id: row.id,
-                code: row.booking_code,
-                amount: Number(row.total_amount ?? 0),
-                time: String(row.start_time).slice(0, 5),
-                date: row.appointment_date,
-                at: Date.now(),
-              },
-              ...prev,
-            ].slice(0, 12),
+          push(
+            payload.new as {
+              id: string;
+              booking_code: string;
+              total_amount: number;
+              start_time: string;
+              appointment_date: string;
+            },
           );
-          toast.success("New booking received", {
-            description: `Ref ${row.booking_code} · ${formatTime(
-              String(row.start_time).slice(0, 5),
-            )} · ${formatMoney(Number(row.total_amount ?? 0))}`,
-            duration: 8000,
-          });
         },
       )
       .subscribe();
