@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1790594278274,
+      "tag": "0000_paragon_single_salon_access_requests",
+      "breakpoints": true
+    }
+  ]
+}
