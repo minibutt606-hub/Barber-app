@@ -4,11 +4,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/*
- * Paragon Barber design system — dark luxury glassmorphism.
- * Warm gold/amber accents on a deep slate/zinc base, emerald for success.
- * All colours are tokens; never hardcode colour utilities in components.
- */
+/* Paragon Salon — fresh mint accents on clean porcelain surfaces. */
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
@@ -60,103 +56,65 @@
 }
 
 :root {
-  --radius: 1rem;
-  --background: oklch(0.16 0.014 265);
-  --foreground: oklch(0.97 0.008 90);
-  --card: oklch(0.21 0.016 265);
-  --card-foreground: oklch(0.97 0.008 90);
-  --popover: oklch(0.2 0.016 265);
-  --popover-foreground: oklch(0.97 0.008 90);
-  --primary: oklch(0.79 0.153 74);
-  --primary-foreground: oklch(0.2 0.03 62);
-  --secondary: oklch(0.27 0.018 265);
-  --secondary-foreground: oklch(0.95 0.008 90);
-  --muted: oklch(0.26 0.016 265);
-  --muted-foreground: oklch(0.7 0.02 265);
-  --accent: oklch(0.3 0.03 70);
-  --accent-foreground: oklch(0.92 0.06 82);
-  --success: oklch(0.72 0.15 163);
-  --success-foreground: oklch(0.18 0.03 163);
-  --warning: oklch(0.82 0.14 85);
-  --warning-foreground: oklch(0.2 0.03 62);
-  --destructive: oklch(0.63 0.2 22);
-  --destructive-foreground: oklch(0.98 0.01 90);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 14%);
-  --ring: oklch(0.79 0.153 74 / 60%);
-  --chart-1: oklch(0.79 0.153 74);
-  --chart-2: oklch(0.72 0.15 163);
-  --chart-3: oklch(0.68 0.12 250);
-  --chart-4: oklch(0.75 0.14 20);
-  --chart-5: oklch(0.62 0.1 300);
-  --sidebar: oklch(0.19 0.016 265);
-  --sidebar-foreground: oklch(0.95 0.008 90);
-  --sidebar-primary: oklch(0.79 0.153 74);
-  --sidebar-primary-foreground: oklch(0.2 0.03 62);
-  --sidebar-accent: oklch(0.26 0.018 265);
-  --sidebar-accent-foreground: oklch(0.95 0.008 90);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.79 0.153 74 / 60%);
-}
-
-.dark {
-  color-scheme: dark;
+  --radius: 0.5rem;
+  --background: oklch(0.985 0.005 155);
+  --foreground: oklch(0.22 0.025 175);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.22 0.025 175);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.22 0.025 175);
+  --primary: oklch(0.45 0.105 163);
+  --primary-foreground: oklch(0.99 0.005 155);
+  --secondary: oklch(0.945 0.022 160);
+  --secondary-foreground: oklch(0.29 0.045 165);
+  --muted: oklch(0.955 0.012 160);
+  --muted-foreground: oklch(0.44 0.024 170);
+  --accent: oklch(0.91 0.045 160);
+  --accent-foreground: oklch(0.29 0.07 165);
+  --success: oklch(0.41 0.095 155);
+  --success-foreground: oklch(0.99 0 0);
+  --warning: oklch(0.48 0.12 75);
+  --warning-foreground: oklch(0.99 0 0);
+  --destructive: oklch(0.53 0.18 27);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.86 0.018 165);
+  --input: oklch(0.86 0.018 165);
+  --ring: oklch(0.53 0.12 163);
+  --chart-1: oklch(0.48 0.12 163);
+  --chart-2: oklch(0.57 0.12 75);
+  --chart-3: oklch(0.46 0.09 245);
+  --chart-4: oklch(0.58 0.14 25);
+  --chart-5: oklch(0.52 0.09 315);
+  --sidebar: oklch(0.97 0.01 160);
+  --sidebar-foreground: oklch(0.22 0.025 175);
+  --sidebar-primary: oklch(0.45 0.105 163);
+  --sidebar-primary-foreground: oklch(0.99 0.005 155);
+  --sidebar-accent: oklch(0.91 0.045 160);
+  --sidebar-accent-foreground: oklch(0.29 0.07 165);
+  --sidebar-border: oklch(0.86 0.018 165);
+  --sidebar-ring: oklch(0.53 0.12 163);
 }
 
 @layer base {
-  * {
-    border-color: var(--color-border);
-  }
-
-  html {
-    color-scheme: dark;
-  }
-
-  body {
-    background-color: var(--color-background);
-    color: var(--color-foreground);
-    font-family: var(--font-sans);
-    background-image:
-      radial-gradient(60rem 40rem at 15% -10%, oklch(0.79 0.153 74 / 12%), transparent 60%),
-      radial-gradient(50rem 35rem at 110% 10%, oklch(0.72 0.15 163 / 8%), transparent 60%);
-    background-attachment: fixed;
-  }
-
-  h1,
-  h2,
-  .font-display {
-    font-family: var(--font-display);
-  }
+  * { border-color: var(--color-border); }
+  html { color-scheme: light; }
+  body { background-color: var(--color-background); color: var(--color-foreground); font-family: var(--font-sans); }
+  h1, h2, .font-display { font-family: var(--font-display); }
 }
 
 @utility glass {
-  background-color: oklch(1 0 0 / 5%);
-  backdrop-filter: blur(20px);
-  border: 1px solid oklch(1 0 0 / 10%);
-  box-shadow:
-    0 1px 0 0 oklch(1 0 0 / 8%) inset,
-    0 24px 60px -30px oklch(0 0 0 / 80%);
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 28px -18px oklch(0.28 0.05 165 / 24%);
 }
 
 @utility glass-strong {
-  background-color: oklch(1 0 0 / 8%);
-  backdrop-filter: blur(24px);
-  border: 1px solid oklch(1 0 0 / 14%);
-  box-shadow:
-    0 1px 0 0 oklch(1 0 0 / 10%) inset,
-    0 30px 70px -30px oklch(0 0 0 / 85%);
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: 0 16px 42px -24px oklch(0.28 0.05 165 / 28%);
 }
 
-@utility gold-text {
-  background-image: linear-gradient(
-    100deg,
-    oklch(0.88 0.11 84),
-    oklch(0.79 0.153 74),
-    oklch(0.93 0.07 92)
-  );
-  background-clip: text;
-  color: transparent;
-}
+@utility gold-text { color: var(--primary); }
 
 /* 80mm thermal receipt printing */
 @media print {

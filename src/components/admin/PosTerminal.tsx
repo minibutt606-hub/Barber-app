@@ -233,7 +233,7 @@ export default function PosTerminal({
     <div className="grid gap-5 xl:grid-cols-[1.4fr_1fr]">
       {/* Catalog */}
       <section className="glass rounded-3xl p-5">
-        <div className="flex items-center gap-2 rounded-2xl bg-white/5 px-4">
+        <div className="flex items-center gap-2 rounded-2xl bg-secondary px-4">
           <Search className="size-4 text-muted-foreground" />
           <input
             value={search}
@@ -247,7 +247,7 @@ export default function PosTerminal({
             <button
               key={s.id}
               onClick={() => addService(s)}
-              className="rounded-2xl bg-white/[0.04] p-4 text-left transition-all hover:bg-white/[0.08] active:scale-[0.98]"
+              className="rounded-2xl bg-secondary/60 p-4 text-left transition-all hover:bg-secondary active:scale-[0.98]"
             >
               <p className="text-[10px] tracking-wider text-muted-foreground uppercase">
                 {s.category}
@@ -266,7 +266,7 @@ export default function PosTerminal({
         <h3 className="font-display text-xl font-semibold">Current sale</h3>
 
         <div className="space-y-2">
-          <div className="flex items-center gap-2 rounded-2xl bg-white/5 px-4">
+          <div className="flex items-center gap-2 rounded-2xl bg-secondary px-4">
             <UserPlus className="size-4 text-muted-foreground" />
             <input
               value={customerPhone}
@@ -285,7 +285,7 @@ export default function PosTerminal({
             value={customerName}
             onChange={(e) => setCustomerName(e.target.value)}
             placeholder="Customer name"
-            className="w-full rounded-2xl bg-white/5 px-4 py-2.5 text-sm outline-none"
+            className="w-full rounded-2xl bg-secondary px-4 py-2.5 text-sm outline-none"
           />
           {phoneMatch && (
             <p className="text-[11px] text-success">
@@ -296,7 +296,7 @@ export default function PosTerminal({
           <select
             value={staffId ?? ""}
             onChange={(e) => setStaffId(e.target.value || null)}
-            className="w-full rounded-2xl bg-white/5 px-4 py-2.5 text-sm outline-none"
+            className="w-full rounded-2xl bg-secondary px-4 py-2.5 text-sm outline-none"
           >
             <option value="">Assign stylist</option>
             {staff.map((s) => (
@@ -309,12 +309,12 @@ export default function PosTerminal({
 
         <div className="space-y-2">
           {items.length === 0 && (
-            <p className="rounded-2xl bg-white/[0.03] p-4 text-xs text-muted-foreground">
+            <p className="rounded-2xl bg-secondary/60 p-4 text-xs text-muted-foreground">
               Tap a service to start the ticket.
             </p>
           )}
           {items.map((i) => (
-            <div key={i.serviceId ?? i.name} className="flex items-center gap-2 rounded-2xl bg-white/[0.04] p-3">
+            <div key={i.serviceId ?? i.name} className="flex items-center gap-2 rounded-2xl bg-secondary/60 p-3">
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium">{i.name}</p>
                 <p className="text-xs text-muted-foreground">{formatMoney(i.price)} each</p>
@@ -322,14 +322,14 @@ export default function PosTerminal({
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => changeQty(i.serviceId, -1)}
-                  className="flex size-7 items-center justify-center rounded-full bg-white/5"
+                  className="flex size-7 items-center justify-center rounded-full bg-secondary"
                 >
                   <Minus className="size-3" />
                 </button>
                 <span className="w-6 text-center text-sm">{i.qty}</span>
                 <button
                   onClick={() => changeQty(i.serviceId, 1)}
-                  className="flex size-7 items-center justify-center rounded-full bg-white/5"
+                  className="flex size-7 items-center justify-center rounded-full bg-secondary"
                 >
                   <Plus className="size-3" />
                 </button>
@@ -342,7 +342,7 @@ export default function PosTerminal({
         <div className="space-y-3 border-t border-border pt-4 text-sm">
           <Row label="Subtotal" value={formatMoney(subtotal)} />
           <div className="flex items-center gap-2">
-            <div className="flex rounded-full bg-white/5 p-0.5">
+            <div className="flex rounded-full bg-secondary p-0.5">
               {(["pct", "flat"] as const).map((m) => (
                 <button
                   key={m}
@@ -362,7 +362,7 @@ export default function PosTerminal({
               value={discountValue || ""}
               onChange={(e) => setDiscountValue(Number(e.target.value))}
               placeholder="Discount"
-              className="w-full rounded-2xl bg-white/5 px-4 py-2 text-sm outline-none"
+              className="w-full rounded-2xl bg-secondary px-4 py-2 text-sm outline-none"
             />
             <span className="w-20 text-right text-destructive">-{formatMoney(discountAmount)}</span>
           </div>
@@ -379,7 +379,7 @@ export default function PosTerminal({
               value={paidAmount}
               onChange={(e) => setPaidAmount(e.target.value)}
               placeholder={String(totalPayable)}
-              className="w-32 rounded-2xl bg-white/5 px-4 py-2 text-right text-sm outline-none"
+              className="w-32 rounded-2xl bg-secondary px-4 py-2 text-right text-sm outline-none"
             />
           </div>
           <Row
@@ -396,7 +396,7 @@ export default function PosTerminal({
               onClick={() => setMethod(m)}
               className={cn(
                 "rounded-2xl py-2 text-xs font-medium transition-all",
-                method === m ? "bg-primary text-primary-foreground" : "bg-white/5 text-muted-foreground",
+                method === m ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground",
               )}
             >
               {m}
@@ -423,7 +423,7 @@ export default function PosTerminal({
           </button>
           <button
             onClick={resetSale}
-            className="flex items-center justify-center rounded-full bg-white/5 px-4 py-3 text-muted-foreground"
+            className="flex items-center justify-center rounded-full bg-secondary px-4 py-3 text-muted-foreground"
             aria-label="Clear sale"
           >
             <Trash2 className="size-4" />

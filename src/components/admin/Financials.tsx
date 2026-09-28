@@ -125,7 +125,7 @@ export default function Financials() {
       <section className="glass rounded-3xl p-4 sm:p-5">
         <h3 className="font-display text-lg font-semibold sm:text-xl">Daily revenue</h3>
         {rangeInvoices.length === 0 ? (
-          <p className="mt-4 rounded-2xl bg-white/[0.03] p-5 text-xs text-muted-foreground">
+          <p className="mt-4 rounded-2xl bg-secondary/60 p-5 text-xs text-muted-foreground">
             No sales recorded yet.
           </p>
         ) : (
@@ -153,7 +153,7 @@ export default function Financials() {
           <h3 className="font-display text-lg font-semibold sm:text-xl">Stylist performance</h3>
           <div className="mt-4 space-y-3">
             {byStaff.length === 0 && (
-              <p className="rounded-2xl bg-white/[0.03] p-5 text-xs text-muted-foreground">
+              <p className="rounded-2xl bg-secondary/60 p-5 text-xs text-muted-foreground">
                 No staff members added.
               </p>
             )}
@@ -163,7 +163,7 @@ export default function Financials() {
                   <span className="min-w-0 truncate">{s.name}</span>
                   <span className="shrink-0 text-primary">{formatMoney(s.total)}</span>
                 </div>
-                <div className="h-2 overflow-hidden rounded-full bg-white/5">
+                <div className="h-2 overflow-hidden rounded-full bg-secondary">
                   <div
                     className="h-full rounded-full bg-primary"
                     style={{ width: `${(s.total / maxStaff) * 100}%` }}
@@ -178,7 +178,7 @@ export default function Financials() {
           <h3 className="font-display text-lg font-semibold sm:text-xl">Top guests</h3>
           <div className="mt-4 space-y-3">
             {customers.length === 0 && (
-              <p className="rounded-2xl bg-white/[0.03] p-5 text-xs text-muted-foreground">
+              <p className="rounded-2xl bg-secondary/60 p-5 text-xs text-muted-foreground">
                 No guests recorded yet.
               </p>
             )}
@@ -205,12 +205,12 @@ export default function Financials() {
             value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
             placeholder="Expense title"
-            className="w-full min-w-0 rounded-2xl bg-white/5 px-4 py-2.5 text-sm outline-none"
+            className="w-full min-w-0 rounded-2xl bg-secondary px-4 py-2.5 text-sm outline-none"
           />
           <select
             value={form.category}
             onChange={(e) => setForm({ ...form, category: e.target.value })}
-            className="w-full min-w-0 rounded-2xl bg-white/5 px-4 py-2.5 text-sm outline-none"
+            className="w-full min-w-0 rounded-2xl bg-secondary px-4 py-2.5 text-sm outline-none"
           >
             {EXPENSE_CATEGORIES.map((c) => (
               <option key={c} value={c} className="bg-card">
@@ -223,7 +223,7 @@ export default function Financials() {
             value={form.amount}
             onChange={(e) => setForm({ ...form, amount: e.target.value })}
             placeholder="Amount"
-            className="w-full min-w-0 rounded-2xl bg-white/5 px-4 py-2.5 text-sm outline-none"
+            className="w-full min-w-0 rounded-2xl bg-secondary px-4 py-2.5 text-sm outline-none"
           />
           <button
             onClick={() => addExpense.mutate()}
@@ -234,14 +234,14 @@ export default function Financials() {
         </div>
         <div className="mt-4 space-y-2">
           {rangeExpenses.length === 0 && (
-            <p className="rounded-2xl bg-white/[0.03] p-5 text-xs text-muted-foreground">
+            <p className="rounded-2xl bg-secondary/60 p-5 text-xs text-muted-foreground">
               No expenses recorded yet.
             </p>
           )}
           {rangeExpenses.slice(0, 10).map((e) => (
             <div
               key={e.id}
-              className="flex items-center justify-between gap-3 rounded-2xl bg-white/[0.04] px-4 py-3 text-sm"
+              className="flex items-center justify-between gap-3 rounded-2xl bg-secondary/60 px-4 py-3 text-sm"
             >
               <div className="min-w-0">
                 <p className="truncate">{e.title}</p>

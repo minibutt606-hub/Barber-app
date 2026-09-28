@@ -96,7 +96,7 @@ export default function BookingsBoard({ onConvert }: { onConvert: (draft: PosDra
             <section key={group.key} className="space-y-3">
               <header className="flex items-center justify-between px-1">
                 <h3 className="font-display text-lg font-semibold">{group.label}</h3>
-                <span className="rounded-full bg-white/5 px-2 py-0.5 text-xs text-muted-foreground">
+                <span className="rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground">
                   {list.length}
                 </span>
               </header>
@@ -232,7 +232,7 @@ function ActionButton({
         tone === "primary" && "bg-primary/15 text-primary hover:bg-primary/25",
         tone === "success" && "bg-success/15 text-success hover:bg-success/25",
         tone === "danger" && "bg-destructive/12 text-destructive hover:bg-destructive/20",
-        tone === "default" && "bg-white/5 text-foreground hover:bg-white/10",
+        tone === "default" && "bg-secondary text-foreground hover:bg-secondary",
       )}
     >
       {icon}

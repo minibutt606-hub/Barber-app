@@ -132,7 +132,7 @@ function AdminDashboard({ isOwner }: { isOwner: boolean }) {
                   "flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm transition-all",
                   tab === key
                     ? "bg-primary/15 text-primary"
-                    : "text-muted-foreground hover:bg-white/5",
+                    : "text-muted-foreground hover:bg-secondary",
                 )}
               >
                 <Icon className="size-4" />
@@ -147,7 +147,7 @@ function AdminDashboard({ isOwner }: { isOwner: boolean }) {
           </nav>
           <button
             onClick={signOut}
-            className="mt-6 flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm text-muted-foreground hover:bg-white/5"
+            className="mt-6 flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm text-muted-foreground hover:bg-secondary"
           >
             <LogOut className="size-4" /> Sign out
           </button>
@@ -213,7 +213,7 @@ function AdminDashboard({ isOwner }: { isOwner: boolean }) {
                     <button
                       key={a.id}
                       onClick={openBookings}
-                      className="w-full rounded-2xl bg-white/5 px-3 py-2 text-left"
+                      className="w-full rounded-2xl bg-secondary px-3 py-2 text-left"
                     >
                       <p className="text-xs font-semibold text-primary">{a.code}</p>
                       <p className="text-[11px] text-muted-foreground">
