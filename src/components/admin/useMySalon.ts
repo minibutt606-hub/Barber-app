@@ -10,7 +10,6 @@ export type SalonProfile = {
   address: string;
   phone: string;
   whatsapp: string;
-  slug: string;
   openFrom: string;
   openTo: string;
 };
@@ -30,7 +29,6 @@ export function useMySalon(): SalonProfile {
     address: data?.address ?? "",
     phone: data?.phone ?? "",
     whatsapp: data?.whatsapp ?? "",
-    slug: data?.slug ?? "",
     openFrom: data?.open_from ?? SALON.openFrom,
     openTo: data?.open_to ?? SALON.openTo,
   };

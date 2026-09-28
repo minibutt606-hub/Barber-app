@@ -110,12 +110,12 @@ export default function CatalogManager() {
             value={serviceForm.name}
             onChange={(e) => setServiceForm({ ...serviceForm, name: e.target.value })}
             placeholder="Service name"
-            className="rounded-2xl bg-white/5 px-4 py-2.5 text-sm outline-none"
+            className="rounded-2xl bg-secondary px-4 py-2.5 text-sm outline-none"
           />
           <select
             value={serviceForm.category}
             onChange={(e) => setServiceForm({ ...serviceForm, category: e.target.value })}
-            className="rounded-2xl bg-white/5 px-4 py-2.5 text-sm outline-none"
+            className="rounded-2xl bg-secondary px-4 py-2.5 text-sm outline-none"
           >
             {SERVICE_CATEGORIES.map((c) => (
               <option key={c} value={c} className="bg-card">
@@ -128,14 +128,14 @@ export default function CatalogManager() {
             value={serviceForm.price}
             onChange={(e) => setServiceForm({ ...serviceForm, price: e.target.value })}
             placeholder="Price"
-            className="rounded-2xl bg-white/5 px-4 py-2.5 text-sm outline-none"
+            className="rounded-2xl bg-secondary px-4 py-2.5 text-sm outline-none"
           />
           <input
             type="number"
             value={serviceForm.duration}
             onChange={(e) => setServiceForm({ ...serviceForm, duration: e.target.value })}
             placeholder="Minutes"
-            className="rounded-2xl bg-white/5 px-4 py-2.5 text-sm outline-none"
+            className="rounded-2xl bg-secondary px-4 py-2.5 text-sm outline-none"
           />
         </div>
         <button
@@ -150,7 +150,7 @@ export default function CatalogManager() {
             <div
               key={s.id}
               className={cn(
-                "flex items-center gap-3 rounded-2xl bg-white/[0.04] px-4 py-3",
+                "flex items-center gap-3 rounded-2xl bg-secondary/60 px-4 py-3",
                 !s.is_active && "opacity-45",
               )}
             >
@@ -165,7 +165,7 @@ export default function CatalogManager() {
                 onClick={() => toggleService.mutate(s)}
                 className={cn(
                   "flex size-8 items-center justify-center rounded-full",
-                  s.is_active ? "bg-success/15 text-success" : "bg-white/5 text-muted-foreground",
+                  s.is_active ? "bg-success/15 text-success" : "bg-secondary text-muted-foreground",
                 )}
                 aria-label="Toggle service"
               >
@@ -185,19 +185,19 @@ export default function CatalogManager() {
             value={staffForm.name}
             onChange={(e) => setStaffForm({ ...staffForm, name: e.target.value })}
             placeholder="Stylist name"
-            className="rounded-2xl bg-white/5 px-4 py-2.5 text-sm outline-none"
+            className="rounded-2xl bg-secondary px-4 py-2.5 text-sm outline-none"
           />
           <input
             value={staffForm.role}
             onChange={(e) => setStaffForm({ ...staffForm, role: e.target.value })}
             placeholder="Role (e.g. Master Barber)"
-            className="rounded-2xl bg-white/5 px-4 py-2.5 text-sm outline-none"
+            className="rounded-2xl bg-secondary px-4 py-2.5 text-sm outline-none"
           />
           <input
             value={staffForm.phone}
             onChange={(e) => setStaffForm({ ...staffForm, phone: e.target.value })}
             placeholder="Phone number"
-            className="rounded-2xl bg-white/5 px-4 py-2.5 text-sm outline-none"
+            className="rounded-2xl bg-secondary px-4 py-2.5 text-sm outline-none"
           />
         </div>
         <button
@@ -212,7 +212,7 @@ export default function CatalogManager() {
             <div
               key={s.id}
               className={cn(
-                "flex items-center gap-3 rounded-2xl bg-white/[0.04] px-4 py-3",
+                "flex items-center gap-3 rounded-2xl bg-secondary/60 px-4 py-3",
                 !s.is_active && "opacity-45",
               )}
             >
@@ -227,7 +227,7 @@ export default function CatalogManager() {
                 onClick={() => toggleStaff.mutate(s)}
                 className={cn(
                   "flex size-8 items-center justify-center rounded-full",
-                  s.is_active ? "bg-success/15 text-success" : "bg-white/5 text-muted-foreground",
+                  s.is_active ? "bg-success/15 text-success" : "bg-secondary text-muted-foreground",
                 )}
                 aria-label="Toggle stylist"
               >

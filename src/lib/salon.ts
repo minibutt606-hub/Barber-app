@@ -1,5 +1,5 @@
 export const SALON = {
-  name: "Paragon Barber",
+  name: "Paragon Salon",
   tagline: "Precision grooming, royal treatment",
   address: "Shah Chowk near Chaman",
   phone: "+92 327 1300046",

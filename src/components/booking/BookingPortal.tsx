@@ -53,7 +53,7 @@ function StepDots({ step }: { step: number }) {
                 ? "bg-success/20 text-success"
                 : i === step
                   ? "bg-primary text-primary-foreground shadow-[0_0_20px_-4px_var(--color-primary)]"
-                  : "bg-white/5 text-muted-foreground",
+                  : "bg-secondary text-muted-foreground",
             )}
           >
             {i < step ? <Check className="size-3.5" /> : i + 1}
@@ -65,7 +65,7 @@ function StepDots({ step }: { step: number }) {
   );
 }
 
-export default function BookingPortal({ slug }: { slug: string }) {
+export default function BookingPortal() {
   const [step, setStep] = useState(0);
   const [category, setCategory] = useState<string>("Hair");
   const [selected, setSelected] = useState<string[]>([]);
@@ -81,15 +81,15 @@ export default function BookingPortal({ slug }: { slug: string }) {
 
   const portalFn = useServerFn(getSalonPortal);
   const portalQuery = useQuery({
-    queryKey: ["salon-portal", slug],
-    queryFn: () => portalFn({ data: { slug } }),
+    queryKey: ["salon-portal"],
+    queryFn: () => portalFn(),
     retry: false,
   });
 
   const bookedSlotsFn = useServerFn(getBookedSlots);
   const slotsQuery = useQuery({
-    queryKey: ["booked-slots", slug, date, staffId],
-    queryFn: () => bookedSlotsFn({ data: { slug, date, staffId } }),
+    queryKey: ["booked-slots", date, staffId],
+    queryFn: () => bookedSlotsFn({ data: { date, staffId } }),
     enabled: step === 1,
   });
 
@@ -98,14 +98,13 @@ export default function BookingPortal({ slug }: { slug: string }) {
     mutationFn: () =>
       createBookingFn({
         data: {
-          slug,
           name,
           phone,
           notes: notes || null,
           serviceIds: selected,
           staffId,
           date,
-          time: time!,
+          time: time ?? "",
         },
       }),
     onSuccess: (result) => {
@@ -176,10 +175,10 @@ export default function BookingPortal({ slug }: { slug: string }) {
           </div>
         </div>
         <Link
-          to="/admin"
+          to="/auth"
           className="glass rounded-full px-4 py-2 text-xs font-medium text-muted-foreground transition-colors hover:text-primary"
         >
-          Staff login
+          Management sign in
         </Link>
       </header>
 
@@ -196,7 +195,7 @@ export default function BookingPortal({ slug }: { slug: string }) {
             )}
           </div>
           <h1 className="mt-4 font-display text-4xl leading-tight font-semibold sm:text-5xl">
-            Book your <span className="gold-text">grooming ritual</span>
+            Paragon Salon <span className="gold-text">appointments</span>
           </h1>
           <p className="mt-3 max-w-lg text-sm text-muted-foreground">
             Choose your services, pick your stylist and lock a slot in under a minute. Confirmation
@@ -256,7 +255,7 @@ export default function BookingPortal({ slug }: { slug: string }) {
                       <div
                         className={cn(
                           "mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-2xl transition-colors",
-                          active ? "bg-primary text-primary-foreground" : "bg-white/5 text-primary",
+                          active ? "bg-primary text-primary-foreground" : "bg-secondary text-primary",
                         )}
                       >
                         {active ? <Check className="size-4" /> : <span className="size-2.5 rounded-full border border-current opacity-50" />}
@@ -312,7 +311,7 @@ export default function BookingPortal({ slug }: { slug: string }) {
                       staffId === m.id ? "glass-strong ring-1 ring-primary/60" : "glass",
                     )}
                   >
-                    <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-white/5 font-display text-lg font-semibold text-primary">
+                    <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-secondary font-display text-lg font-semibold text-primary">
                       {m.name.charAt(0)}
                     </div>
                     <p className="mt-2 text-sm font-medium">{m.name}</p>
@@ -353,7 +352,7 @@ export default function BookingPortal({ slug }: { slug: string }) {
                       className={cn(
                         "rounded-2xl py-2.5 text-xs font-medium transition-all",
                         isBooked
-                          ? "cursor-not-allowed bg-white/[0.03] text-muted-foreground/40 line-through"
+                          ? "cursor-not-allowed bg-secondary/60 text-muted-foreground/70 line-through"
                           : time === slot
                             ? "bg-primary text-primary-foreground shadow-[0_0_24px_-8px_var(--color-primary)]"
                             : "glass hover:ring-1 hover:ring-primary/40",
@@ -381,7 +380,7 @@ export default function BookingPortal({ slug }: { slug: string }) {
                 maxLength={80}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Ahmed Raza"
-                className="mt-1 w-full rounded-2xl bg-white/5 px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary/60"
+                className="mt-1 w-full rounded-2xl bg-secondary px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary/60"
               />
             </div>
             <div>
@@ -392,7 +391,7 @@ export default function BookingPortal({ slug }: { slug: string }) {
                 inputMode="tel"
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="03XXXXXXXXX"
-                className="mt-1 w-full rounded-2xl bg-white/5 px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary/60"
+                className="mt-1 w-full rounded-2xl bg-secondary px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary/60"
               />
             </div>
             <div>
@@ -403,7 +402,7 @@ export default function BookingPortal({ slug }: { slug: string }) {
                 rows={3}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Fade preference, allergies, occasion…"
-                className="mt-1 w-full resize-none rounded-2xl bg-white/5 px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary/60"
+                className="mt-1 w-full resize-none rounded-2xl bg-secondary px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary/60"
               />
             </div>
           </section>
@@ -426,7 +425,7 @@ export default function BookingPortal({ slug }: { slug: string }) {
               {confirmation.bookingCode}
             </p>
 
-            <div className="mt-6 space-y-3 rounded-3xl bg-white/[0.04] p-5 text-left text-sm">
+            <div className="mt-6 space-y-3 rounded-3xl bg-secondary/60 p-5 text-left text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Guest</span>
                 <span className="font-medium">{name}</span>
@@ -483,7 +482,7 @@ export default function BookingPortal({ slug }: { slug: string }) {
 
       {/* Sticky summary bar */}
       {step < 3 && (
-        <div className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-background/80 backdrop-blur-xl">
+        <div className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-background/95 backdrop-blur-xl">
           <div className="mx-auto flex max-w-3xl items-center gap-3 px-5 py-4">
             <div className="min-w-0 flex-1">
               <p className="truncate text-xs text-muted-foreground">
@@ -509,7 +508,7 @@ export default function BookingPortal({ slug }: { slug: string }) {
                 "flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-all active:scale-[0.98]",
                 canContinue && !booking.isPending
                   ? "bg-primary text-primary-foreground shadow-[0_0_30px_-10px_var(--color-primary)]"
-                  : "cursor-not-allowed bg-white/5 text-muted-foreground",
+                  : "cursor-not-allowed bg-secondary text-muted-foreground",
               )}
             >
               {booking.isPending ? (
