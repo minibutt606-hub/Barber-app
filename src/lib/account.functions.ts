@@ -27,7 +27,7 @@ export const requestAccess = createServerFn({ method: "POST" })
       .select("status").eq("user_id", context.userId).maybeSingle();
     if (existing) return existing;
     const email = context.claims.email;
-    if (typeof email !== "string" || !z.email().max(255).safeParse(email).success) throw new Error("A valid email is required");
+    if (typeof email !== "string" || !z.string().email().max(255).safeParse(email).success) throw new Error("A valid email is required");
     const { error } = await context.supabase.from("access_requests")
       .insert({ user_id: context.userId, email });
     if (error) throw new Error("Could not send access request");
@@ -48,7 +48,7 @@ export const getAccessRequests = createServerFn({ method: "GET" })
 
 export const reviewAccess = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ id: z.uuid(), decision: z.enum(["approved", "rejected"]) }).parse(input))
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid(), decision: z.enum(["approved", "rejected"]) }).parse(input))
   .handler(async ({ context, data }) => {
     const { data: salon } = await context.supabase.from("salons")
       .select("owner_id").eq("id", PARAGON_ID).maybeSingle();
