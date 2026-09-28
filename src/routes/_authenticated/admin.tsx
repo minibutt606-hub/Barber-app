@@ -165,7 +165,6 @@ function AdminDashboard({ isOwner }: { isOwner: boolean }) {
                 /book
               </a>
             </div>
-          </div>
         </aside>
 
         <main className="min-w-0 flex-1 space-y-6">
