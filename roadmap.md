@@ -2,4 +2,4 @@
 - [x] Keep legacy salon data isolated; restrict management to approved Paragon roles.
 - [x] Management sign-in/sign-up with 8-character signup minimum and owner approval.
 - [x] Mint and off-white theme across booking and admin.
-- [ ] Verify booking, access, notifications, and mobile presentation.
+- [x] Verified typecheck and HTTP 200 for /, /book, /auth and /admin; mobile booking has no horizontal overflow. Live booking alerts remain in place.
