@@ -1,0 +1,5 @@
+- [x] Direct Paragon Salon booking on / and /book; remove slug navigation.
+- [x] Keep legacy salon data isolated; restrict management to approved Paragon roles.
+- [x] Management sign-in/sign-up with 8-character signup minimum and owner approval.
+- [x] Mint and off-white theme across booking and admin.
+- [ ] Verify booking, access, notifications, and mobile presentation.
