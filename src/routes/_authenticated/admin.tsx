@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { getAccess, getAccessRequests, reviewAccess } from "@/lib/account.functions";
 import {
   BarChart3,
   CalendarRange,
@@ -25,22 +30,55 @@ import { formatDate, formatMoney, formatTime } from "@/lib/salon";
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
     meta: [
-      { title: "Salon Command Centre — Paragon Barber" },
+       { title: "Management Dashboard — Paragon Salon" },
       {
         name: "description",
         content:
-          "Live bookings board, point of sale with thermal receipts, financial analytics and catalog management for Paragon Barber.",
+           "Live bookings, point of sale, financials and catalog management for Paragon Salon.",
       },
-      { property: "og:title", content: "Salon Command Centre — Paragon Barber" },
+       { property: "og:title", content: "Management Dashboard — Paragon Salon" },
       {
         property: "og:description",
-        content: "Manage bookings, billing and analytics for Paragon Barber.",
+         content: "Manage bookings, billing and analytics for Paragon Salon.",
       },
+       { property: "og:type", content: "website" },
+       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
     ],
   }),
-  component: AdminDashboard,
+  component: AdminAccessGate,
 });
+
+function AdminAccessGate() {
+  const accessFn = useServerFn(getAccess);
+  const navigate = useNavigate();
+  const { data, isPending } = useQuery({ queryKey: ["paragon-access"], queryFn: () => accessFn() });
+  if (isPending) return <div className="flex min-h-screen items-center justify-center text-muted-foreground">Loading management access…</div>;
+  if (!data?.allowed) return <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-5 text-center">
+    <h1 className="font-display text-3xl font-semibold">Management access pending</h1>
+    <p className="text-sm text-muted-foreground">Only approved Paragon Salon staff can open this page.</p>
+    <Button variant="outline" onClick={() => navigate({ to: "/auth", replace: true })}>Back to sign in</Button>
+  </div>;
+  return <AdminDashboard isOwner={data.owner} />;
+}
+
+function AccessRequests() {
+  const load = useServerFn(getAccessRequests);
+  const review = useServerFn(reviewAccess);
+  const queryClient = useQueryClient();
+  const { data: requests = [] } = useQuery({ queryKey: ["access-requests"], queryFn: () => load() });
+  if (requests.length === 0) return null;
+  return <section className="border-b border-border pb-5">
+    <h2 className="font-display text-xl font-semibold">Staff access requests</h2>
+    <div className="mt-3 space-y-2">{requests.map((request) => <div key={request.id} className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-border bg-card p-3">
+      <span className="min-w-0 break-all text-sm">{request.email}</span>
+      <div className="flex gap-2">
+        <Button size="sm" variant="outline" onClick={async () => { try { await review({ data: { id: request.id, decision: "rejected" } }); queryClient.invalidateQueries({ queryKey: ["access-requests"] }); } catch { toast.error("Could not reject request"); } }}>Decline</Button>
+        <Button size="sm" onClick={async () => { try { await review({ data: { id: request.id, decision: "approved" } }); queryClient.invalidateQueries({ queryKey: ["access-requests"] }); toast.success("Staff access granted"); } catch { toast.error("Could not approve request"); } }}>Approve</Button>
+      </div>
+    </div>)}</div>
+  </section>;
+}
 
 const TABS = [
   { key: "bookings", label: "Bookings", icon: CalendarRange },
@@ -51,7 +89,7 @@ const TABS = [
 
 type TabKey = (typeof TABS)[number]["key"];
 
-function AdminDashboard() {
+function AdminDashboard({ isOwner }: { isOwner: boolean }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<TabKey>("bookings");
@@ -75,8 +113,6 @@ function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-background pb-24 lg:pb-0">
-      <div className="pointer-events-none fixed inset-x-0 top-0 h-96 bg-[radial-gradient(60%_60%_at_50%_0%,color-mix(in_oklch,var(--color-primary)_16%,transparent),transparent)] print:hidden" />
-
       <div className="relative mx-auto flex max-w-[1500px] gap-6 px-4 py-6 lg:px-8">
         {/* Desktop rail */}
         <aside className="glass sticky top-6 hidden h-fit w-60 shrink-0 rounded-3xl p-4 lg:block print:hidden">
@@ -116,24 +152,24 @@ function AdminDashboard() {
             <LogOut className="size-4" /> Sign out
           </button>
 
-          {salon.slug && (
-            <div className="mt-4 rounded-2xl bg-white/5 p-3">
+          <div className="mt-4 rounded-md bg-secondary p-3">
               <p className="text-[10px] tracking-wider text-muted-foreground uppercase">
                 Your booking link
               </p>
               <a
-                href={`/book/${salon.slug}`}
+                href="/book"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-1 block truncate text-xs text-primary"
               >
-                /book/{salon.slug}
+                /book
               </a>
             </div>
-          )}
+          </div>
         </aside>
 
         <main className="min-w-0 flex-1 space-y-6">
+          {isOwner && <AccessRequests />}
           <header className="flex items-center justify-between print:hidden">
             <div>
               <h1 className="font-display text-3xl font-semibold">
