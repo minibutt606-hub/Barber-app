@@ -65,7 +65,7 @@ function StepDots({ step }: { step: number }) {
   );
 }
 
-export default function BookingPortal({ slug }: { slug: string }) {
+export default function BookingPortal() {
   const [step, setStep] = useState(0);
   const [category, setCategory] = useState<string>("Hair");
   const [selected, setSelected] = useState<string[]>([]);
@@ -81,15 +81,15 @@ export default function BookingPortal({ slug }: { slug: string }) {
 
   const portalFn = useServerFn(getSalonPortal);
   const portalQuery = useQuery({
-    queryKey: ["salon-portal", slug],
-    queryFn: () => portalFn({ data: { slug } }),
+    queryKey: ["salon-portal"],
+    queryFn: () => portalFn(),
     retry: false,
   });
 
   const bookedSlotsFn = useServerFn(getBookedSlots);
   const slotsQuery = useQuery({
-    queryKey: ["booked-slots", slug, date, staffId],
-    queryFn: () => bookedSlotsFn({ data: { slug, date, staffId } }),
+    queryKey: ["booked-slots", date, staffId],
+    queryFn: () => bookedSlotsFn({ data: { date, staffId } }),
     enabled: step === 1,
   });
 
@@ -98,14 +98,13 @@ export default function BookingPortal({ slug }: { slug: string }) {
     mutationFn: () =>
       createBookingFn({
         data: {
-          slug,
           name,
           phone,
           notes: notes || null,
           serviceIds: selected,
           staffId,
           date,
-          time: time!,
+          time: time ?? "",
         },
       }),
     onSuccess: (result) => {
@@ -176,10 +175,10 @@ export default function BookingPortal({ slug }: { slug: string }) {
           </div>
         </div>
         <Link
-          to="/admin"
+          to="/auth"
           className="glass rounded-full px-4 py-2 text-xs font-medium text-muted-foreground transition-colors hover:text-primary"
         >
-          Staff login
+          Management sign in
         </Link>
       </header>
 
@@ -196,7 +195,7 @@ export default function BookingPortal({ slug }: { slug: string }) {
             )}
           </div>
           <h1 className="mt-4 font-display text-4xl leading-tight font-semibold sm:text-5xl">
-            Book your <span className="gold-text">grooming ritual</span>
+            Paragon Salon <span className="gold-text">appointments</span>
           </h1>
           <p className="mt-3 max-w-lg text-sm text-muted-foreground">
             Choose your services, pick your stylist and lock a slot in under a minute. Confirmation

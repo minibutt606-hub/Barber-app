@@ -1,186 +1,105 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Crown, Loader2, LockKeyhole, Mail, Store } from "lucide-react";
+import { Crown, Loader2, LockKeyhole, Mail } from "lucide-react";
 import { toast } from "sonner";
-
-import { ensureSalonWorkspace } from "@/lib/account.functions";
+import { Button } from "@/components/ui/button";
+import { getAccess, requestAccess } from "@/lib/account.functions";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/auth")({
-  head: () => ({
-    meta: [
-      { title: "Salon Sign In — SalonOS" },
-      { name: "description", content: "Sign in or create your own salon workspace on SalonOS." },
-      { property: "og:title", content: "Salon Sign In — SalonOS" },
-      { property: "og:description", content: "Access your salon POS and bookings dashboard." },
-      { name: "robots", content: "noindex" },
-    ],
-  }),
+  head: () => ({ meta: [
+    { title: "Management Sign In — Paragon Salon" },
+    { name: "description", content: "Sign in or request a Paragon Salon management account." },
+    { property: "og:title", content: "Management Sign In — Paragon Salon" },
+    { property: "og:description", content: "Secure staff access for Paragon Salon." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+    { name: "robots", content: "noindex" },
+  ] }),
   component: AuthPage,
 });
 
 function AuthPage() {
   const navigate = useNavigate();
+  const checkAccess = useServerFn(getAccess);
+  const sendRequest = useServerFn(requestAccess);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [salonName, setSalonName] = useState("");
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<"signin" | "signup">("signin");
-  const setupWorkspace = useServerFn(ensureSalonWorkspace);
+  const [notice, setNotice] = useState("");
+  const [signedIn, setSignedIn] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/admin", replace: true });
-    });
-  }, [navigate]);
+    let active = true;
+    supabase.auth.getUser().then(async ({ data }) => {
+      if (!active || !data.user) return;
+      const access = await checkAccess();
+      if (!active) return;
+      if (access.allowed) navigate({ to: "/admin", replace: true });
+      else setSignedIn(true);
+    }).catch(() => {});
+    return () => { active = false; };
+  }, [navigate, checkAccess]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (mode === "signup" && password.length < 8) { toast.error("Use at least 8 characters for your password"); return; }
     setLoading(true);
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
-          email: email.trim(),
-          password,
+        const { data, error } = await supabase.auth.signUp({
+          email: email.trim(), password,
           options: { emailRedirectTo: `${window.location.origin}/auth` },
         });
         if (error) throw error;
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email: email.trim(),
-          password,
-        });
-        if (signInError) {
-          toast.success("Account created. Please sign in.");
+        if (!data.session) {
+          setNotice("Check your email to confirm your account. Then sign in to request access.");
           setMode("signin");
           return;
         }
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email: email.trim(),
-          password,
-        });
+        const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
         if (error) throw error;
       }
-
-      const workspace = await setupWorkspace({
-        data: { salonName: salonName.trim() || null },
-      });
-      if (workspace?.created) {
-        toast.success(`${workspace.salon?.name} workspace is ready`);
-      }
-      navigate({ to: "/admin", replace: true });
+      const access = await checkAccess();
+      if (access.allowed) { navigate({ to: "/admin", replace: true }); return; }
+      const request = await sendRequest();
+      setSignedIn(true);
+      setNotice(request.status === "rejected" ? "Access has not been granted. Please contact the salon manager." : "Your request is awaiting approval from the salon manager.");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Authentication failed");
-    } finally {
-      setLoading(false);
-    }
+      toast.error(error instanceof Error ? error.message : "Sign-in failed");
+    } finally { setLoading(false); }
   }
 
-  return (
-    <div className="flex min-h-screen items-center justify-center px-5">
-      <div className="glass-strong w-full max-w-md rounded-3xl p-8">
-        <div className="flex items-center gap-3">
-          <div className="flex size-11 items-center justify-center rounded-2xl bg-primary/15">
-            <Crown className="size-5 text-primary" />
-          </div>
-          <div>
-            <p className="font-display text-xl font-semibold">SalonOS</p>
-            <p className="text-[11px] tracking-[0.2em] text-muted-foreground uppercase">
-              Salon control room
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-7 flex gap-1 rounded-full bg-white/5 p-1">
-          {(["signin", "signup"] as const).map((m) => (
-            <button
-              key={m}
-              type="button"
-              onClick={() => setMode(m)}
-              className={`flex-1 rounded-full py-2 text-xs font-semibold transition-colors ${
-                mode === m
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {m === "signin" ? "Sign in" : "Sign up"}
-            </button>
-          ))}
-        </div>
-
-        <h1 className="mt-5 font-display text-3xl font-semibold">
-          {mode === "signin" ? "Welcome back" : "Create your account"}
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {mode === "signin"
-            ? "Sign in to manage bookings, billing and analytics."
-            : "You'll get your own private salon workspace."}
-        </p>
-
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          {mode === "signup" && (
-            <div>
-              <label className="text-xs text-muted-foreground">Salon name</label>
-              <div className="mt-1 flex items-center gap-2 rounded-2xl bg-white/5 px-4 focus-within:ring-1 focus-within:ring-primary/60">
-                <Store className="size-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  required
-                  minLength={2}
-                  value={salonName}
-                  onChange={(e) => setSalonName(e.target.value)}
-                  placeholder="Paragon Barber"
-                  className="w-full bg-transparent py-3 text-sm outline-none"
-                />
-              </div>
-            </div>
-          )}
-          <div>
-            <label className="text-xs text-muted-foreground">Email</label>
-            <div className="mt-1 flex items-center gap-2 rounded-2xl bg-white/5 px-4 focus-within:ring-1 focus-within:ring-primary/60">
-              <Mail className="size-4 text-muted-foreground" />
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="owner@paragonbarber.pk"
-                className="w-full bg-transparent py-3 text-sm outline-none"
-              />
-            </div>
-          </div>
-          <div>
-            <label className="text-xs text-muted-foreground">Password</label>
-            <div className="mt-1 flex items-center gap-2 rounded-2xl bg-white/5 px-4 focus-within:ring-1 focus-within:ring-primary/60">
-              <LockKeyhole className="size-4 text-muted-foreground" />
-              <input
-                type="password"
-                required
-                minLength={6}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full bg-transparent py-3 text-sm outline-none"
-              />
-            </div>
-          </div>
-          <button
-            type="submit"
-            disabled={loading}
-            className="flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 text-sm font-semibold text-primary-foreground transition-transform active:scale-[0.98] disabled:opacity-60"
-          >
-            {loading && <Loader2 className="size-4 animate-spin" />}
-            {mode === "signin" ? "Sign in" : "Create account"}
-          </button>
-        </form>
-
-        <p className="mt-4 text-center text-xs text-muted-foreground">
-          {mode === "signin"
-            ? "New here? Use Sign up to create the owner account."
-            : "Extra staff accounts need owner approval before access."}
-        </p>
+  return <div className="flex min-h-screen items-center justify-center px-5 py-10">
+    <div className="glass-strong w-full max-w-md rounded-lg p-7 sm:p-9">
+      <div className="flex items-center gap-3">
+        <div className="flex size-11 items-center justify-center rounded-md bg-primary/15"><Crown className="size-5 text-primary" /></div>
+        <div><p className="font-display text-2xl font-semibold">Paragon Salon</p><p className="text-xs text-muted-foreground">Management access</p></div>
       </div>
+      {signedIn ? <div className="mt-8 space-y-5">
+        <h1 className="font-display text-3xl font-semibold">Access pending</h1>
+        <p className="text-sm text-muted-foreground">{notice || "Your account needs approval from the salon manager."}</p>
+        <Button variant="outline" className="w-full" onClick={async () => { await supabase.auth.signOut(); setSignedIn(false); setNotice(""); }}>Sign out</Button>
+      </div> : <>
+        <div className="mt-8 grid grid-cols-2 rounded-md bg-secondary p-1">
+          {(["signin", "signup"] as const).map((m) => <Button key={m} type="button" variant={mode === m ? "default" : "ghost"} onClick={() => { setMode(m); setNotice(""); }} className="w-full">{m === "signin" ? "Sign in" : "Sign up"}</Button>)}
+        </div>
+        <h1 className="mt-7 font-display text-3xl font-semibold">{mode === "signin" ? "Welcome back" : "Join the team"}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{mode === "signin" ? "Sign in to your Paragon Salon account." : "New accounts require manager approval before they can access salon data."}</p>
+        {notice && <p className="mt-5 rounded-md bg-accent p-3 text-sm text-accent-foreground" role="status">{notice}</p>}
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          <label className="block text-xs font-medium text-muted-foreground">Email
+            <span className="mt-1 flex items-center gap-2 rounded-md border border-input bg-background px-4 focus-within:ring-1 focus-within:ring-ring"><Mail className="size-4" /><input type="email" required maxLength={255} value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className="w-full bg-transparent py-3 text-sm text-foreground outline-none" /></span>
+          </label>
+          <label className="block text-xs font-medium text-muted-foreground">Password
+            <span className="mt-1 flex items-center gap-2 rounded-md border border-input bg-background px-4 focus-within:ring-1 focus-within:ring-ring"><LockKeyhole className="size-4" /><input type="password" required minLength={mode === "signup" ? 8 : undefined} maxLength={128} value={password} onChange={(e) => setPassword(e.target.value)} placeholder={mode === "signup" ? "At least 8 characters" : "Your password"} className="w-full bg-transparent py-3 text-sm text-foreground outline-none" /></span>
+          </label>
+          <Button type="submit" disabled={loading} className="h-11 w-full">{loading && <Loader2 className="size-4 animate-spin" />}{mode === "signin" ? "Sign in" : "Create account"}</Button>
+        </form>
+      </>}
     </div>
-  );
+  </div>;
 }
