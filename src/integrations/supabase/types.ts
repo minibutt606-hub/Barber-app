@@ -111,6 +111,8 @@ export type Database = {
           id: string
           name: string
           notes: string | null
+          penalty_active: boolean
+          penalty_at: string | null
           phone: string
           salon_id: string
           total_spent: number
@@ -121,6 +123,8 @@ export type Database = {
           id?: string
           name: string
           notes?: string | null
+          penalty_active?: boolean
+          penalty_at?: string | null
           phone: string
           salon_id?: string
           total_spent?: number
@@ -131,6 +135,8 @@ export type Database = {
           id?: string
           name?: string
           notes?: string | null
+          penalty_active?: boolean
+          penalty_at?: string | null
           phone?: string
           salon_id?: string
           total_spent?: number
