@@ -4,7 +4,7 @@ export const SALON = {
   address: "Shah Chowk near Chaman",
   phone: "+92 327 1300046",
   /** WhatsApp number in international format, digits only. */
-  whatsapp: "923271300046",
+  whatsapp: "923051802404",
   openFrom: "10:00 AM",
   openTo: "12:00 AM",
 } as const;

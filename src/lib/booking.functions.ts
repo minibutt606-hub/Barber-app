@@ -60,8 +60,9 @@ export const createBooking = createServerFn({ method: "POST" })
     if (busyError) throw new Error("Could not check availability");
     if (data.staffId && busy?.some((b) => b.staff_id === data.staffId)) throw new Error("This stylist is already booked");
     const phone = data.phone.replace(/[^\d+]/g, "");
-    const { data: existing } = await supabaseAdmin.from("customers").select("id")
+    const { data: existing } = await supabaseAdmin.from("customers").select("id,penalty_active")
       .eq("salon_id", PARAGON_ID).eq("phone", phone).maybeSingle();
+    if (existing?.penalty_active) throw new Error("PENALTY: You have a pending late arrival penalty. Please settle it with the salon to proceed.");
     let customerId = existing?.id;
     if (!customerId) {
       const { data: inserted, error } = await supabaseAdmin.from("customers")
