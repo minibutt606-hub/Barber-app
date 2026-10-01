@@ -110,8 +110,24 @@ export default function BookingPortal() {
     onSuccess: (result) => {
       setConfirmation({ bookingCode: result.bookingCode, total: result.total });
       setStep(3);
+      const msg = [
+        `New booking at ${SALON.name}`,
+        `*Ref:* ${result.bookingCode}`,
+        `*Name:* ${name}`,
+        `*Phone:* ${phone}`,
+        `*Services:* ${result.services.map((s) => s.name).join(", ")}`,
+        `*Date:* ${formatDate(date)}`,
+        `*Time:* ${formatTime(time ?? "")}`,
+        `*Total:* ${formatMoney(result.total)}`,
+      ].join("\n");
+      window.open(whatsappLink(SALON.whatsapp, msg), "_blank", "noopener,noreferrer");
     },
-    onError: () => toast.error("We couldn't save your booking. Please try again."),
+    onError: (err: Error) => {
+      const m = String(err?.message ?? "");
+      if (m.includes("PENALTY")) {
+        toast.error("You have a pending late arrival penalty. Please settle it with the salon to proceed.", { duration: 10000 });
+      } else toast.error("We couldn't save your booking. Please try again.");
+    },
   });
 
   const salon = portalQuery.data?.salon ?? {
@@ -455,7 +471,7 @@ export default function BookingPortal() {
             </div>
 
             <a
-              href={whatsappLink(salon.whatsapp ?? "", summaryMessage())}
+              href={whatsappLink(SALON.whatsapp, summaryMessage())}
               target="_blank"
               rel="noopener noreferrer"
               className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-success px-6 py-3.5 text-sm font-semibold text-success-foreground transition-transform active:scale-[0.98]"
