@@ -38,9 +38,7 @@ export const requestAccess = createServerFn({ method: "POST" })
 export const getAccessRequests = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data: salon } = await context.supabase.from("salons")
-      .select("owner_id").eq("id", PARAGON_ID).maybeSingle();
-    if (salon?.owner_id !== context.userId) throw new Error("Not authorized");
+    await assertManager(context);
     const { data, error } = await context.supabase.from("access_requests")
       .select("id,email,status,created_at").eq("status", "pending").order("created_at");
     if (error) throw new Error("Could not load requests");
@@ -51,9 +49,7 @@ export const reviewAccess = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ id: z.string().uuid(), decision: z.enum(["approved", "rejected"]) }).parse(input))
   .handler(async ({ context, data }) => {
-    const { data: salon } = await context.supabase.from("salons")
-      .select("owner_id").eq("id", PARAGON_ID).maybeSingle();
-    if (salon?.owner_id !== context.userId) throw new Error("Not authorized");
+    await assertManager(context);
     const { data: request } = await context.supabase.from("access_requests")
       .select("user_id,status").eq("id", data.id).maybeSingle();
     if (!request || request.status !== "pending") throw new Error("Request is no longer pending");

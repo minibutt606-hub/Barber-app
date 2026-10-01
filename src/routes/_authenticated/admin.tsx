@@ -14,11 +14,13 @@ import {
   Scissors,
   ShoppingBag,
   Bell,
+  Users,
 } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useMySalon } from "@/components/admin/useMySalon";
 import { cn } from "@/lib/utils";
+import TeamManager from "@/components/admin/TeamManager";
 import BookingsBoard from "@/components/admin/BookingsBoard";
 import PosTerminal from "@/components/admin/PosTerminal";
 import Financials from "@/components/admin/Financials";
@@ -59,7 +61,7 @@ function AdminAccessGate() {
     <p className="text-sm text-muted-foreground">Only approved Paragon Salon staff can open this page.</p>
     <Button variant="outline" onClick={() => navigate({ to: "/auth", replace: true })}>Back to sign in</Button>
   </div>;
-  return <AdminDashboard isOwner={data.owner} />;
+  return <AdminDashboard isOwner={data.admin} />;
 }
 
 function AccessRequests() {
@@ -85,6 +87,7 @@ const TABS = [
   { key: "pos", label: "Point of Sale", icon: ShoppingBag },
   { key: "financials", label: "Financials", icon: BarChart3 },
   { key: "catalog", label: "Catalog", icon: Scissors },
+  { key: "team", label: "Team", icon: Users },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
@@ -124,7 +127,7 @@ function AdminDashboard({ isOwner }: { isOwner: boolean }) {
             </div>
           </div>
           <nav className="mt-4 space-y-1">
-            {TABS.map(({ key, label, icon: Icon }) => (
+            {TABS.filter((t) => t.key !== "team" || isOwner).map(({ key, label, icon: Icon }) => (
               <button
                 key={key}
                 onClick={() => { setTab(key); if (key === "bookings") clearUnread(); }}
@@ -236,12 +239,13 @@ function AdminDashboard({ isOwner }: { isOwner: boolean }) {
           {tab === "pos" && <PosTerminal draft={draft} onDraftConsumed={() => setDraft(null)} />}
           {tab === "financials" && <Financials />}
           {tab === "catalog" && <CatalogManager />}
+          {tab === "team" && isOwner && <TeamManager />}
         </main>
       </div>
 
       {/* Mobile tab bar — fixed height, never grows */}
       <nav className="glass-strong fixed bottom-0 left-0 right-0 z-50 flex h-16 items-center justify-around px-2 py-0 lg:hidden print:hidden">
-        {TABS.map(({ key, label, icon: Icon }) => (
+        {TABS.filter((t) => t.key !== "team" || isOwner).map(({ key, label, icon: Icon }) => (
           <button
             key={key}
             onClick={() => { setTab(key); if (key === "bookings") clearUnread(); }}
