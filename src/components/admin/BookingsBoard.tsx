@@ -21,6 +21,7 @@ const STATUS_STYLES: Record<string, string> = {
   "in-service": "bg-chart-3/20 text-chart-3",
   completed: "bg-success/15 text-success",
   cancelled: "bg-destructive/15 text-destructive",
+  "no-show": "bg-destructive/15 text-destructive",
 };
 
 export default function BookingsBoard({ onConvert }: { onConvert: (draft: PosDraft) => void }) {
@@ -62,6 +63,24 @@ export default function BookingsBoard({ onConvert }: { onConvert: (draft: PosDra
     onError: () => toast.error("Could not update the appointment"),
   });
 
+  const setPenalty = useMutation({
+    mutationFn: async ({ appointmentId, customerId, active }: { appointmentId?: string; customerId: string; active: boolean }) => {
+      if (appointmentId) {
+        const { error } = await supabase.from("appointments").update({ status: "no-show" }).eq("id", appointmentId);
+        if (error) throw error;
+      }
+      const { error } = await supabase.from("customers")
+        .update({ penalty_active: active, penalty_at: active ? new Date().toISOString() : null })
+        .eq("id", customerId);
+      if (error) throw error;
+    },
+    onSuccess: (_d, v) => {
+      queryClient.invalidateQueries({ queryKey: ["admin-board"] });
+      toast.success(v.active ? "Marked as No-Show / Late Penalty" : "Penalty cleared");
+    },
+    onError: () => toast.error("Could not update the penalty"),
+  });
+
   const appointments = data?.appointments ?? [];
   const customers = data?.customers ?? [];
   const staff = data?.staff ?? [];
@@ -88,6 +107,22 @@ export default function BookingsBoard({ onConvert }: { onConvert: (draft: PosDra
         </span>
         <Radio className="size-3.5" /> Live — new bookings appear instantly
       </div>
+
+      {customers.some((c) => c.penalty_active) && (
+        <section className="glass space-y-3 rounded-3xl p-4">
+          <h3 className="font-display text-lg font-semibold text-destructive">Late arrival penalties</h3>
+          {customers.filter((c) => c.penalty_active).map((c) => (
+            <div key={c.id} className="flex items-center justify-between gap-2 border-t border-border pt-2 text-sm">
+              <div className="min-w-0">
+                <p className="truncate font-medium">{c.name}</p>
+                <p className="text-xs text-muted-foreground">{c.phone}</p>
+              </div>
+              <ActionButton icon={<Check className="size-3.5" />} label="Paid — clear penalty" tone="success"
+                onClick={() => setPenalty.mutate({ customerId: c.id, active: false })} />
+            </div>
+          ))}
+        </section>
+      )}
 
       <div className="grid gap-5 lg:grid-cols-2 xl:grid-cols-4">
         {groups.map((group) => {
@@ -177,6 +212,17 @@ export default function BookingsBoard({ onConvert }: { onConvert: (draft: PosDra
                           label="Cancel"
                           tone="danger"
                           onClick={() => updateStatus.mutate({ id: a.id, status: "cancelled" })}
+                        />
+                      )}
+                      {(a.status === "pending" || a.status === "confirmed") && a.customer_id && (
+                        <ActionButton
+                          icon={<CircleSlash className="size-3.5" />}
+                          label="No-Show / Late"
+                          tone="danger"
+                          onClick={() => {
+                            if (confirm("Client didn't show or came more than 1 hour late? This adds a penalty to their phone number."))
+                              setPenalty.mutate({ appointmentId: a.id, customerId: a.customer_id!, active: true });
+                          }}
                         />
                       )}
                       <ActionButton
