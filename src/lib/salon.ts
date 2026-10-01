@@ -5,8 +5,8 @@ export const SALON = {
   phone: "+92 327 1300046",
   /** WhatsApp number in international format, digits only. */
   whatsapp: "923271300046",
-  openFrom: "11:00 AM",
-  openTo: "3:00 AM",
+  openFrom: "10:00 AM",
+  openTo: "12:00 AM",
 } as const;
 
 export const CURRENCY = "Rs";
@@ -40,12 +40,11 @@ export const APPOINTMENT_STATUSES = [
 ] as const;
 export type AppointmentStatus = (typeof APPOINTMENT_STATUSES)[number];
 
-/** 30-minute slots between 11:00 AM and 3:00 AM (last start 2:30 AM). */
+/** 30-minute slots between 10:00 AM and 12:00 AM midnight (last start 11:30 PM). */
 export function buildTimeSlots(): string[] {
   const slots: string[] = [];
-  // 11:00 -> 23:30 same day, then 00:00 -> 02:30 next day.
-  for (let minutes = 11 * 60; minutes <= 26 * 60 + 30; minutes += 30) {
-    const h = Math.floor(minutes / 60) % 24;
+  for (let minutes = 10 * 60; minutes <= 23 * 60 + 30; minutes += 30) {
+    const h = Math.floor(minutes / 60);
     const m = minutes % 60;
     slots.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
   }
