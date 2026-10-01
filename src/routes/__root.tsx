@@ -1,4 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { persistQueryClient } from "@tanstack/react-query-persist-client";
+import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 import {
   Outlet,
   Link,
@@ -120,6 +122,18 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  // Persist query cache in LocalStorage so screens load instantly after refresh.
+  useEffect(() => {
+    const persister = createSyncStoragePersister({ storage: window.localStorage, key: "paragon-cache" });
+    const [unsubscribe] = persistQueryClient({
+      queryClient,
+      persister,
+      maxAge: 1000 * 60 * 60 * 24,
+      buster: "paragon-v1",
+    });
+    return unsubscribe;
+  }, [queryClient]);
 
   return (
     <QueryClientProvider client={queryClient}>

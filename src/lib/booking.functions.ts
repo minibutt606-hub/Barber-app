@@ -11,7 +11,7 @@ const bookingSchema = availabilitySchema.extend({
   phone: z.string().trim().min(7).max(20).regex(/^[+0-9 ()-]+$/, "Invalid phone number"),
   notes: z.string().trim().max(500).optional().nullable(),
   serviceIds: z.array(z.string().uuid()).min(1).max(10),
-  time: z.string().regex(/^\d{2}:\d{2}$/),
+  time: z.string().regex(/^(1\d|2[0-3]):(00|30)$/, "Bookings are available 10:00 AM – 12:00 AM"),
 });
 
 export const getSalonPortal = createServerFn({ method: "GET" }).handler(async () => {
