@@ -88,7 +88,7 @@ function AuthPage() {
           {(["signin", "signup"] as const).map((m) => <Button key={m} type="button" variant={mode === m ? "default" : "ghost"} onClick={() => { setMode(m); setNotice(""); }} className="w-full">{m === "signin" ? "Sign in" : "Sign up"}</Button>)}
         </div>
         <h1 className="mt-7 font-display text-3xl font-semibold">{mode === "signin" ? "Welcome back" : "Join the team"}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">{mode === "signin" ? "Sign in to your Paragon Salon account." : "New accounts require manager approval before they can access salon data."}</p>
+        <p className="mt-1 text-sm text-muted-foreground">{mode === "signin" ? "Sign in to your Paragon Salon account." : "Create your account to open the Paragon Salon dashboard."}</p>
         {notice && <p className="mt-5 rounded-md bg-accent p-3 text-sm text-accent-foreground" role="status">{notice}</p>}
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <label className="block text-xs font-medium text-muted-foreground">Email

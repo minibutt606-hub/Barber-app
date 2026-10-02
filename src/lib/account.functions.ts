@@ -7,15 +7,23 @@ const PARAGON_ID = "cfb0f888-d012-443f-8717-a0c9d1556c9c";
 export const getAccess = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data: roles, error } = await context.supabase.from("user_roles")
+    let { data: roles, error } = await context.supabase.from("user_roles")
       .select("role").eq("user_id", context.userId).eq("salon_id", PARAGON_ID);
     if (error) throw new Error("Could not check access");
+    if (!roles?.length) {
+      // Open access: every signed-up account automatically gets staff access.
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { error: grantError } = await supabaseAdmin.from("user_roles").upsert(
+        { user_id: context.userId, salon_id: PARAGON_ID, role: "staff" },
+        { onConflict: "user_id,role" },
+      );
+      if (grantError) throw new Error("Could not grant access");
+      roles = [{ role: "staff" }];
+    }
     const { data: salon } = await context.supabase.from("salons")
       .select("owner_id").eq("id", PARAGON_ID).maybeSingle();
-    const { data: request } = await context.supabase.from("access_requests")
-      .select("status").eq("user_id", context.userId).maybeSingle();
     const owner = salon?.owner_id === context.userId;
-    return { allowed: (roles?.length ?? 0) > 0, owner, admin: owner || !!roles?.some((r) => r.role === "admin"), status: request?.status ?? null };
+    return { allowed: true, owner, admin: owner || roles.some((r) => r.role === "admin"), status: "approved" as string | null };
   });
 
 export const requestAccess = createServerFn({ method: "POST" })
