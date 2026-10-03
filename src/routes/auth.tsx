@@ -27,7 +27,6 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [notice, setNotice] = useState("");
   const [signedIn, setSignedIn] = useState(false);
 
@@ -45,24 +44,10 @@ function AuthPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (mode === "signup" && password.length < 8) { toast.error("Use at least 8 characters for your password"); return; }
     setLoading(true);
     try {
-      if (mode === "signup") {
-        const { data, error } = await supabase.auth.signUp({
-          email: email.trim(), password,
-          options: { emailRedirectTo: `${window.location.origin}/auth` },
-        });
-        if (error) throw error;
-        if (!data.session) {
-          setNotice("Check your email to confirm your account. Then sign in to request access.");
-          setMode("signin");
-          return;
-        }
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
-        if (error) throw error;
-      }
+      const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+      if (error) throw error;
       const access = await checkAccess();
       if (access.allowed) { navigate({ to: "/admin", replace: true }); return; }
       const request = await sendRequest();
@@ -84,20 +69,17 @@ function AuthPage() {
         <p className="text-sm text-muted-foreground">{notice || "Your account needs approval from the salon manager."}</p>
         <Button variant="outline" className="w-full" onClick={async () => { await supabase.auth.signOut(); setSignedIn(false); setNotice(""); }}>Sign out</Button>
       </div> : <>
-        <div className="mt-8 grid grid-cols-2 rounded-md bg-secondary p-1">
-          {(["signin", "signup"] as const).map((m) => <Button key={m} type="button" variant={mode === m ? "default" : "ghost"} onClick={() => { setMode(m); setNotice(""); }} className="w-full">{m === "signin" ? "Sign in" : "Sign up"}</Button>)}
-        </div>
-        <h1 className="mt-7 font-display text-3xl font-semibold">{mode === "signin" ? "Welcome back" : "Join the team"}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">{mode === "signin" ? "Sign in to your Paragon Salon account." : "Create your account to open the Paragon Salon dashboard."}</p>
+        <h1 className="mt-8 font-display text-3xl font-semibold">Welcome back</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Sign in to your Paragon Salon account.</p>
         {notice && <p className="mt-5 rounded-md bg-accent p-3 text-sm text-accent-foreground" role="status">{notice}</p>}
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <label className="block text-xs font-medium text-muted-foreground">Email
             <span className="mt-1 flex items-center gap-2 rounded-md border border-input bg-background px-4 focus-within:ring-1 focus-within:ring-ring"><Mail className="size-4" /><input type="email" required maxLength={255} value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className="w-full bg-transparent py-3 text-sm text-foreground outline-none" /></span>
           </label>
           <label className="block text-xs font-medium text-muted-foreground">Password
-            <span className="mt-1 flex items-center gap-2 rounded-md border border-input bg-background px-4 focus-within:ring-1 focus-within:ring-ring"><LockKeyhole className="size-4" /><input type="password" required minLength={mode === "signup" ? 8 : undefined} maxLength={128} value={password} onChange={(e) => setPassword(e.target.value)} placeholder={mode === "signup" ? "At least 8 characters" : "Your password"} className="w-full bg-transparent py-3 text-sm text-foreground outline-none" /></span>
+            <span className="mt-1 flex items-center gap-2 rounded-md border border-input bg-background px-4 focus-within:ring-1 focus-within:ring-ring"><LockKeyhole className="size-4" /><input type="password" required maxLength={128} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Your password" className="w-full bg-transparent py-3 text-sm text-foreground outline-none" /></span>
           </label>
-          <Button type="submit" disabled={loading} className="h-11 w-full">{loading && <Loader2 className="size-4 animate-spin" />}{mode === "signin" ? "Sign in" : "Create account"}</Button>
+          <Button type="submit" disabled={loading} className="h-11 w-full">{loading && <Loader2 className="size-4 animate-spin" />}Sign in</Button>
         </form>
       </>}
     </div>
