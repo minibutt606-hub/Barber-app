@@ -36,7 +36,7 @@ function AuthPage() {
       if (!active || !data.user) return;
       const access = await checkAccess();
       if (!active) return;
-      if (access.allowed) navigate({ to: "/admin", replace: true });
+      if (access.allowed) { toast.success("Welcome back — signed in"); navigate({ to: "/admin", replace: true }); }
       else setSignedIn(true);
     }).catch(() => {});
     return () => { active = false; };
@@ -49,7 +49,7 @@ function AuthPage() {
       const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
       if (error) throw error;
       const access = await checkAccess();
-      if (access.allowed) { navigate({ to: "/admin", replace: true }); return; }
+      if (access.allowed) { toast.success("Signed in successfully"); navigate({ to: "/admin", replace: true }); return; }
       const request = await sendRequest();
       setSignedIn(true);
       setNotice(request.status === "rejected" ? "Access has not been granted. Please contact the salon manager." : "Your request is awaiting approval from the salon manager.");

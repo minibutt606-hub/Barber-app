@@ -190,12 +190,6 @@ export default function BookingPortal() {
             </p>
           </div>
         </div>
-        <Link
-          to="/auth"
-          className="glass rounded-full px-4 py-2 text-xs font-medium text-muted-foreground transition-colors hover:text-primary"
-        >
-          Management sign in
-        </Link>
       </header>
 
       <main className="mx-auto max-w-3xl px-5">
