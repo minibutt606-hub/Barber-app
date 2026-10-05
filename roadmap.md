@@ -1,5 +1,6 @@
-- [x] Direct Paragon Salon booking on / and /book; remove slug navigation.
-- [x] Keep legacy salon data isolated; restrict management to approved Paragon roles.
-- [x] Management sign-in/sign-up with 8-character signup minimum and owner approval.
-- [x] Mint and off-white theme across booking and admin.
-- [x] Verified typecheck and HTTP 200 for /, /book, /auth and /admin; mobile booking has no horizontal overflow. Live booking alerts remain in place.
+# Roadmap
+
+- [ ] A-to-Z test: booking flow, WhatsApp alert, admin notifications, penalty system, admin panel tabs
+- [ ] Demo data for Paragon Salon (services + staff) so booking can be tested
+- [ ] Verify owner login still works
+- [ ] Report results to user
