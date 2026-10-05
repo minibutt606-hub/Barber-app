@@ -36,7 +36,7 @@ function AuthPage() {
       if (!active || !data.user) return;
       const access = await checkAccess();
       if (!active) return;
-      if (access.allowed) navigate({ to: "/admin", replace: true });
+      if (access.allowed) { navigate({ to: "/admin", replace: true }); }
       else setSignedIn(true);
     }).catch(() => {});
     return () => { active = false; };
