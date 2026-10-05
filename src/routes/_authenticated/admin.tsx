@@ -61,6 +61,10 @@ function AdminAccessGate() {
     <p className="text-sm text-muted-foreground">Only approved Paragon Salon staff can open this page.</p>
     <Button variant="outline" onClick={() => navigate({ to: "/auth", replace: true })}>Back to sign in</Button>
   </div>;
+  if (typeof window !== "undefined" && !sessionStorage.getItem("paragon-welcome")) {
+    sessionStorage.setItem("paragon-welcome", "1");
+    setTimeout(() => toast.success("Signed in successfully — welcome to Paragon Salon"), 0);
+  }
   return <AdminDashboard isOwner={data.admin} />;
 }
 
